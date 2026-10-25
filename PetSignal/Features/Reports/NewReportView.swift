@@ -56,7 +56,7 @@ struct NewReportView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "link.circle.fill")
                                 .font(.title)
-                                .foregroundStyle(.petSignalGreen)
+                                .foregroundStyle(Color.petSignalGreen)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Following up on \(followingUpOn.displayName)")
                                     .font(.headline)
@@ -76,7 +76,7 @@ struct NewReportView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color(uiColor: .secondarySystemBackground))
-            .tint(.petSignalGreen)
+            .tint(Color.petSignalGreen)
             .navigationTitle(draft.kind == .missing ? "Missing pet" : "New sighting")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -17,7 +17,7 @@ struct ReportCard: View {
                     if isSaved {
                         Image(systemName: "bookmark.fill")
                             .font(.caption)
-                            .foregroundStyle(.petSignalGreen)
+                            .foregroundStyle(Color.petSignalGreen)
                     }
                 }
 

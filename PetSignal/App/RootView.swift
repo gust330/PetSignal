@@ -27,7 +27,7 @@ struct RootView: View {
                 }
                 .tag(AppTab.reports)
         }
-        .tint(.petSignalGreen)
+        .tint(Color.petSignalGreen)
         .onChange(of: selectedTab) { oldTab, newTab in
             if newTab == .create {
                 isPresentingNewReport = true

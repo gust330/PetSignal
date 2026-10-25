@@ -66,7 +66,7 @@ struct SafetyBanner: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "shield.lefthalf.filled")
                 .font(.title3)
-                .foregroundStyle(.petSignalGreen)
+                .foregroundStyle(Color.petSignalGreen)
             VStack(alignment: .leading, spacing: 3) {
                 Text("Approach with care")
                     .font(.subheadline.weight(.bold))

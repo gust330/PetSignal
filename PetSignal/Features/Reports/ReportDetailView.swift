@@ -152,7 +152,7 @@ struct ReportDetailView: View {
                 Spacer()
                 Image(systemName: "location.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(.petSignalGreen)
+                    .foregroundStyle(Color.petSignalGreen)
             }
 
             Map(
@@ -202,7 +202,7 @@ struct ReportDetailView: View {
                                 Spacer()
                                 Text(match.strengthLabel)
                                     .font(.caption.weight(.bold))
-                                    .foregroundStyle(.petSignalGreen)
+                                    .foregroundStyle(Color.petSignalGreen)
                             }
                             HStack(spacing: 12) {
                                 Label(
@@ -236,7 +236,7 @@ struct ReportDetailView: View {
             HStack(spacing: 12) {
                 Image(systemName: "link.circle.fill")
                     .font(.title)
-                    .foregroundStyle(.petSignalGreen)
+                    .foregroundStyle(Color.petSignalGreen)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Connected report")
                         .font(.caption.weight(.bold))
