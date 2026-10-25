@@ -3,6 +3,7 @@ xcuserdata/
 *.xcuserstate
 *.xccheckout
 *.xcscmblueprint
+/PetSignal.xcodeproj/
 
 # Build output
 build/
