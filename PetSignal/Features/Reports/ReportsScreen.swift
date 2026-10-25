@@ -110,19 +110,19 @@ struct ReportsScreen: View {
             return "Try a different name or identifying trait."
         }
         switch filter {
-        case .saved: "Bookmark a report to keep it close."
-        case .resolved: "Resolved reports will appear here."
-        default: "New community reports will appear here."
+        case .saved: return "Bookmark a report to keep it close."
+        case .resolved: return "Resolved reports will appear here."
+        default: return "New community reports will appear here."
         }
     }
 
     private func matchesFilter(_ report: AnimalReport) -> Bool {
         switch filter {
-        case .active: report.status == .active
-        case .missing: report.kind == .missing && report.status == .active
-        case .sightings: report.kind == .sighting && report.status == .active
-        case .saved: reportStore.savedReportIDs.contains(report.id)
-        case .resolved: report.status != .active
+        case .active: return report.status == .active
+        case .missing: return report.kind == .missing && report.status == .active
+        case .sightings: return report.kind == .sighting && report.status == .active
+        case .saved: return reportStore.savedReportIDs.contains(report.id)
+        case .resolved: return report.status != .active
         }
     }
 }
@@ -138,11 +138,11 @@ private enum ReportFilter: String, CaseIterable, Identifiable {
 
     var systemImage: String {
         switch self {
-        case .active: "dot.radiowaves.left.and.right"
-        case .missing: "magnifyingglass"
-        case .sightings: "eye.fill"
-        case .saved: "bookmark.fill"
-        case .resolved: "checkmark.circle.fill"
+        case .active: return "dot.radiowaves.left.and.right"
+        case .missing: return "magnifyingglass"
+        case .sightings: return "eye.fill"
+        case .saved: return "bookmark.fill"
+        case .resolved: return "checkmark.circle.fill"
         }
     }
 }

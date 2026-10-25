@@ -85,8 +85,8 @@ struct SafetyBanner: View {
 extension ReportKind {
     var tint: Color {
         switch self {
-        case .missing: .petSignalAmber
-        case .sighting: .petSignalTeal
+        case .missing: return .petSignalAmber
+        case .sighting: return .petSignalTeal
         }
     }
 }
@@ -94,18 +94,18 @@ extension ReportKind {
 extension ReportStatus {
     var tint: Color {
         switch self {
-        case .active: .petSignalGreen
-        case .reunited, .safe: .blue
-        case .closed: .secondary
+        case .active: return .petSignalGreen
+        case .reunited, .safe: return .blue
+        case .closed: return .secondary
         }
     }
 
     var systemImage: String {
         switch self {
-        case .active: "dot.radiowaves.left.and.right"
-        case .reunited: "heart.fill"
-        case .safe: "checkmark.shield.fill"
-        case .closed: "archivebox.fill"
+        case .active: return "dot.radiowaves.left.and.right"
+        case .reunited: return "heart.fill"
+        case .safe: return "checkmark.shield.fill"
+        case .closed: return "archivebox.fill"
         }
     }
 }

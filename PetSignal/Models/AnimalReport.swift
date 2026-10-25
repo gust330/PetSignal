@@ -31,8 +31,8 @@ enum ReportKind: String, CaseIterable, Identifiable, Hashable {
 
     var systemImage: String {
         switch self {
-        case .missing: "magnifyingglass"
-        case .sighting: "eye.fill"
+        case .missing: return "magnifyingglass"
+        case .sighting: return "eye.fill"
         }
     }
 }
@@ -46,9 +46,9 @@ enum AnimalSpecies: String, CaseIterable, Identifiable, Hashable {
 
     var systemImage: String {
         switch self {
-        case .dog: "dog.fill"
-        case .cat: "cat.fill"
-        case .other: "pawprint.fill"
+        case .dog: return "dog.fill"
+        case .cat: return "cat.fill"
+        case .other: return "pawprint.fill"
         }
     }
 }

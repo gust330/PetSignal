@@ -11,9 +11,9 @@ struct MatchCandidate: Identifiable, Equatable {
 
     var strengthLabel: String {
         switch score {
-        case 0.72...: "Strong possibility"
-        case 0.54...: "Good possibility"
-        default: "Possible match"
+        case 0.72...: return "Strong possibility"
+        case 0.54...: return "Good possibility"
+        default: return "Possible match"
         }
     }
 }
