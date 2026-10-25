@@ -1,0 +1,30 @@
+# Xcode user data
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# Build output
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# CocoaPods and Carthage
+Pods/
+Carthage/Build/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.xcconfig.local
+
+# macOS
+.DS_Store
