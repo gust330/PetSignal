@@ -3,33 +3,45 @@ import UIKit
 
 struct ReportCard: View {
     let report: AnimalReport
+    var isSaved = false
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 15) {
             ReportImage(report: report)
-                .frame(width: 82, height: 82)
+                .frame(width: 94, height: 106)
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 7) {
                 HStack {
-                    Label(report.kind.rawValue, systemImage: report.kind.systemImage)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(report.kind.tint)
+                    TypePill(kind: report.kind)
                     Spacer()
-                    Text(report.lastSeenAt, style: .relative)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    if isSaved {
+                        Image(systemName: "bookmark.fill")
+                            .font(.caption)
+                            .foregroundStyle(.petSignalGreen)
+                    }
                 }
 
                 Text(report.displayName)
-                    .font(.headline)
+                    .font(.title3.weight(.bold))
                 Text(report.summary)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
+
+                HStack(spacing: 5) {
+                    Image(systemName: "clock")
+                    Text(report.lastSeenAt, style: .relative)
+                    if report.status != .active {
+                        Text("·")
+                        StatusPill(status: report.status)
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
         }
-        .padding(12)
-        .background(.background, in: RoundedRectangle(cornerRadius: 18))
+        .petSignalCard()
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -52,14 +64,5 @@ struct ReportImage: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-}
-
-extension ReportKind {
-    var tint: Color {
-        switch self {
-        case .missing: .orange
-        case .sighting: .teal
-        }
     }
 }

@@ -2,7 +2,10 @@ import SwiftUI
 
 struct RootView: View {
     @State private var selectedTab = AppTab.map
+    @State private var previousTab = AppTab.map
     @State private var isPresentingNewReport = false
+    @State private var publishedMessage: String?
+    @State private var toastTask: Task<Void, Never>?
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -12,34 +15,58 @@ struct RootView: View {
                 }
                 .tag(AppTab.map)
 
+            Color.clear
+                .tabItem {
+                    Label("Report", systemImage: "plus.circle.fill")
+                }
+                .tag(AppTab.create)
+
             ReportsScreen()
                 .tabItem {
                     Label("Reports", systemImage: "list.bullet.rectangle.portrait")
                 }
                 .tag(AppTab.reports)
         }
-        .overlay(alignment: .bottom) {
-            Button {
+        .tint(.petSignalGreen)
+        .onChange(of: selectedTab) { oldTab, newTab in
+            if newTab == .create {
                 isPresentingNewReport = true
-            } label: {
-                Label("Report animal", systemImage: "plus")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 18)
-                    .frame(height: 48)
-                    .background(.tint, in: Capsule())
-                    .shadow(color: .black.opacity(0.18), radius: 8, y: 4)
+                selectedTab = oldTab == .create ? previousTab : oldTab
+            } else {
+                previousTab = newTab
             }
-            .padding(.bottom, 52)
-            .accessibilityHint("Create a missing pet or animal sighting report")
         }
         .sheet(isPresented: $isPresentingNewReport) {
-            NewReportView()
+            NewReportView { _ in
+                toastTask?.cancel()
+                publishedMessage = "Report published to the community"
+                selectedTab = .reports
+                toastTask = Task {
+                    try? await Task.sleep(for: .seconds(3))
+                    guard !Task.isCancelled else { return }
+                    publishedMessage = nil
+                }
+            }
         }
+        .overlay(alignment: .top) {
+            if let publishedMessage {
+                Label(publishedMessage, systemImage: "checkmark.circle.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 16)
+                    .frame(height: 48)
+                    .background(Color.petSignalGreen, in: Capsule())
+                    .shadow(radius: 12, y: 5)
+                    .padding(.top, 8)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.snappy, value: publishedMessage)
     }
 }
 
 private enum AppTab: Hashable {
     case map
+    case create
     case reports
 }

@@ -5,26 +5,63 @@ import Observation
 @Observable
 final class ReportStore {
     private(set) var reports: [AnimalReport]
+    private(set) var createdReportIDs = Set<UUID>()
+    private(set) var savedReportIDs = Set<UUID>()
 
     init(reports: [AnimalReport] = AnimalReport.samples) {
         self.reports = reports
     }
 
-    func add(_ draft: ReportDraft) {
+    @discardableResult
+    func add(_ draft: ReportDraft) -> UUID {
+        let id = UUID()
+        let linkedReport = draft.linkedReportID.flatMap { report(withID: $0) }
+        let kind = linkedReport.map { $0.kind == .missing ? ReportKind.sighting : .missing } ?? draft.kind
+        let species = linkedReport?.species ?? draft.species
         let report = AnimalReport(
-            id: UUID(),
-            kind: draft.kind,
-            species: draft.species,
+            id: id,
+            kind: kind,
+            species: species,
             petName: draft.petName.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
             summary: draft.summary.trimmingCharacters(in: .whitespacesAndNewlines),
             details: draft.details.trimmingCharacters(in: .whitespacesAndNewlines),
-            location: draft.location,
+            location: draft.location.privacyRounded,
             reportedAt: Date(),
             lastSeenAt: draft.lastSeenAt,
             imageData: draft.imageData,
+            linkedReportID: draft.linkedReportID,
             status: .active
         )
         reports.insert(report, at: 0)
+        createdReportIDs.insert(id)
+        return id
+    }
+
+    func report(withID id: UUID) -> AnimalReport? {
+        reports.first { $0.id == id }
+    }
+
+    func toggleSaved(_ id: UUID) {
+        if savedReportIDs.contains(id) {
+            savedReportIDs.remove(id)
+        } else {
+            savedReportIDs.insert(id)
+        }
+    }
+
+    func updateStatus(_ status: ReportStatus, for id: UUID) {
+        guard let index = reports.firstIndex(where: { $0.id == id }) else { return }
+        reports[index].status = status
+    }
+
+    func delete(_ id: UUID) {
+        guard createdReportIDs.contains(id) else { return }
+        for index in reports.indices where reports[index].linkedReportID == id {
+            reports[index].linkedReportID = nil
+        }
+        reports.removeAll { $0.id == id }
+        createdReportIDs.remove(id)
+        savedReportIDs.remove(id)
     }
 }
 
@@ -47,6 +84,7 @@ extension AnimalReport {
             reportedAt: Date().addingTimeInterval(-7_200),
             lastSeenAt: Date().addingTimeInterval(-10_800),
             imageData: nil,
+            linkedReportID: nil,
             status: .active
         ),
         AnimalReport(
@@ -60,6 +98,7 @@ extension AnimalReport {
             reportedAt: Date().addingTimeInterval(-1_800),
             lastSeenAt: Date().addingTimeInterval(-2_400),
             imageData: nil,
+            linkedReportID: UUID(uuidString: "EE23D9E0-F49E-4328-AED5-64307179991A"),
             status: .active
         ),
         AnimalReport(
@@ -73,7 +112,22 @@ extension AnimalReport {
             reportedAt: Date().addingTimeInterval(-86_400),
             lastSeenAt: Date().addingTimeInterval(-90_000),
             imageData: nil,
+            linkedReportID: nil,
             status: .active
+        ),
+        AnimalReport(
+            id: UUID(uuidString: "8791FD34-1F4E-4669-A657-F50E8A789BE1")!,
+            kind: .missing,
+            species: .dog,
+            petName: "Toby",
+            summary: "Senior golden retriever",
+            details: "Found by a volunteer and reunited with his family.",
+            location: GeoPoint(latitude: 38.7350, longitude: -9.1480),
+            reportedAt: Date().addingTimeInterval(-259_200),
+            lastSeenAt: Date().addingTimeInterval(-262_800),
+            imageData: nil,
+            linkedReportID: nil,
+            status: .reunited
         )
     ]
 }

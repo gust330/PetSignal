@@ -4,8 +4,18 @@ struct MatchCandidate: Identifiable, Equatable {
     let report: AnimalReport
     let score: Double
     let distanceKilometers: Double
+    let hoursApart: Double
+    let sharedTraits: [String]
 
     var id: UUID { report.id }
+
+    var strengthLabel: String {
+        switch score {
+        case 0.72...: "Strong possibility"
+        case 0.54...: "Good possibility"
+        default: "Possible match"
+        }
+    }
 }
 
 struct ReportMatcher {
@@ -26,14 +36,20 @@ struct ReportMatcher {
             let distanceScore = max(0, 1 - distance / 20)
             let hoursApart = abs(source.lastSeenAt.timeIntervalSince(candidate.lastSeenAt)) / 3_600
             let recencyScore = max(0, 1 - hoursApart / (24 * 14))
-            let traitScore = tokenSimilarity(
-                "\(source.summary) \(source.details)",
-                "\(candidate.summary) \(candidate.details)"
-            )
+            let sourceText = "\(source.summary) \(source.details)"
+            let candidateText = "\(candidate.summary) \(candidate.details)"
+            let traits = sharedTokens(sourceText, candidateText)
+            let traitScore = tokenSimilarity(sourceText, candidateText)
             let score = distanceScore * 0.5 + recencyScore * 0.25 + traitScore * 0.25
 
             guard score >= minimumScore else { return nil }
-            return MatchCandidate(report: candidate, score: score, distanceKilometers: distance)
+            return MatchCandidate(
+                report: candidate,
+                score: score,
+                distanceKilometers: distance,
+                hoursApart: hoursApart,
+                sharedTraits: Array(traits.prefix(3))
+            )
         }
         .sorted { $0.score > $1.score }
     }
@@ -56,6 +72,10 @@ struct ReportMatcher {
         guard !firstTokens.isEmpty, !secondTokens.isEmpty else { return 0 }
         return Double(firstTokens.intersection(secondTokens).count)
             / Double(firstTokens.union(secondTokens).count)
+    }
+
+    private func sharedTokens(_ first: String, _ second: String) -> [String] {
+        tokens(in: first).intersection(tokens(in: second)).sorted()
     }
 
     private func tokens(in value: String) -> Set<String> {

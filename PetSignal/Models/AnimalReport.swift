@@ -12,6 +12,7 @@ struct AnimalReport: Identifiable, Hashable {
     let reportedAt: Date
     let lastSeenAt: Date
     let imageData: Data?
+    var linkedReportID: UUID?
     var status: ReportStatus
 
     var displayName: String {
@@ -52,11 +53,13 @@ enum AnimalSpecies: String, CaseIterable, Identifiable, Hashable {
     }
 }
 
-enum ReportStatus: String, Hashable {
+enum ReportStatus: String, CaseIterable, Identifiable, Hashable {
     case active = "Active"
     case reunited = "Reunited"
     case safe = "Safe"
     case closed = "Closed"
+
+    var id: Self { self }
 }
 
 struct GeoPoint: Hashable {
@@ -65,6 +68,14 @@ struct GeoPoint: Hashable {
 
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+
+    var privacyRounded: GeoPoint {
+        let precision = 0.003
+        return GeoPoint(
+            latitude: (latitude / precision).rounded() * precision,
+            longitude: (longitude / precision).rounded() * precision
+        )
     }
 }
 
@@ -77,4 +88,5 @@ struct ReportDraft: Equatable {
     var location = GeoPoint(latitude: 38.7223, longitude: -9.1393)
     var lastSeenAt = Date()
     var imageData: Data?
+    var linkedReportID: UUID?
 }

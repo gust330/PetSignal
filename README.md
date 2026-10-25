@@ -16,11 +16,15 @@ abandoned domestic animals, sharing sightings, and connecting related reports.
 The first native SwiftUI milestone includes:
 
 - A MapKit view with missing-pet and sighting filters.
-- A community report feed and report details.
-- Photo selection and an explicit map-pin location picker.
+- A polished community feed with search, saved reports, and resolved outcomes.
+- Actionable report details with sharing, safety guidance, and map-area previews.
+- Photo selection, resizing, metadata removal, and an explicit map-area picker.
 - Local sample data and in-memory report creation.
-- Explainable candidate matching based on species, distance, time, and text traits.
-- Unit tests for matching and geographic distance calculations.
+- Follow-up reports that connect sightings to missing-animal reports.
+- Explainable candidate matching based on species, distance, time, and shared traits.
+- Local report lifecycle actions for reunited, safe, closed, and deleted reports.
+- Public coordinates placed on a roughly 300-metre privacy grid instead of exact tapped locations.
+- Unit tests for matching, geographic distance, privacy, saving, and report status.
 
 ## Stack
 
