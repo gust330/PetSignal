@@ -27,6 +27,21 @@ final class ReportStoreTests: XCTestCase {
         XCTAssertTrue(store.reports.isEmpty)
     }
 
+    func testPublishedLocationUsesAnApproximatelyThreeHundredMetrePrivacyGrid() {
+        for latitude in [0.0, 38.72234, 60.0] {
+            let point = GeoPoint(latitude: latitude, longitude: -9.13926)
+            let rounded = point.privacyRounded
+            let latitudeCellMetres = GeoPoint.privacyGridLatitudeDegrees * 111_320
+            let longitudeCellMetres = GeoPoint.privacyGridLongitudeDegrees(at: latitude)
+                * 111_320 * cos(latitude * .pi / 180)
+
+            XCTAssertEqual(latitudeCellMetres, 300, accuracy: 1)
+            XCTAssertEqual(longitudeCellMetres, 300, accuracy: 1)
+            XCTAssertLessThanOrEqual(abs(rounded.latitude - latitude), GeoPoint.privacyGridLatitudeDegrees / 2 + 0.000_001)
+            XCTAssertLessThanOrEqual(abs(rounded.longitude - point.longitude), GeoPoint.privacyGridLongitudeDegrees(at: latitude) / 2 + 0.000_001)
+        }
+    }
+
     func testPublishedLocationIsPrivacyRounded() {
         let store = ReportStore(reports: [])
         var draft = ReportDraft()
@@ -38,8 +53,7 @@ final class ReportStoreTests: XCTestCase {
             return XCTFail("Published report was not stored")
         }
 
-        XCTAssertEqual(report.location.latitude, 38.721, accuracy: 0.000_001)
-        XCTAssertEqual(report.location.longitude, -9.138, accuracy: 0.000_001)
+        XCTAssertNotEqual(report.location, draft.location)
         XCTAssertTrue(store.createdReportIDs.contains(reportID))
     }
 
