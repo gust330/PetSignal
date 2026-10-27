@@ -42,6 +42,29 @@ final class ReportStoreTests: XCTestCase {
         }
     }
 
+    func testPublishedLocationRemainsValidAtDatelineAndPoles() {
+        let store = ReportStore(reports: [])
+
+        for location in [
+            GeoPoint(latitude: 89.9, longitude: 180),
+            GeoPoint(latitude: 89.9, longitude: -180),
+            GeoPoint(latitude: -89.9, longitude: 180),
+            GeoPoint(latitude: -89.9, longitude: -180)
+        ] {
+            var draft = ReportDraft()
+            draft.summary = "Animal seen near the dateline"
+            draft.location = location
+
+            let reportID = try! store.add(draft)
+            guard let publishedLocation = store.report(withID: reportID)?.location else {
+                return XCTFail("Published report was not stored")
+            }
+
+            XCTAssertTrue((-90...90).contains(publishedLocation.latitude))
+            XCTAssertTrue((-180...180).contains(publishedLocation.longitude))
+        }
+    }
+
     func testPublishedLocationIsPrivacyRounded() {
         let store = ReportStore(reports: [])
         var draft = ReportDraft()
