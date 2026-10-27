@@ -44,7 +44,7 @@ final class ReportStoreTests: XCTestCase {
 
     func testPrivacyLongitudeGridUsesPublishedLatitudeCell() {
         let latitudeStep = GeoPoint.privacyGridLatitudeDegrees
-        let cellCenter = 38.72234
+        let cellCenter = (38.72234 / latitudeStep).rounded() * latitudeStep
         let first = GeoPoint(
             latitude: cellCenter - latitudeStep * 0.2,
             longitude: -9.13926
