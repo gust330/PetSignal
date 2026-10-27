@@ -392,7 +392,10 @@ struct NewReportView: View {
             do {
                 let response = try await MKLocalSearch(request: request).start()
                 try Task.checkCancellation()
-                guard locationQuery.trimmingCharacters(in: .whitespacesAndNewlines) == query else { return }
+                guard locationQuery.trimmingCharacters(in: .whitespacesAndNewlines) == query else {
+                    isSearchingLocation = false
+                    return
+                }
                 guard let mapItem = response.mapItems.first else {
                     locationError = "No area was found. Try a neighborhood or landmark."
                     isSearchingLocation = false

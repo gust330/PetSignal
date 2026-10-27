@@ -38,6 +38,7 @@ struct ReportMatcher {
             let distance = distanceKilometers(from: source.location, to: candidate.location)
             let distanceScore = max(0, 1 - distance / 20)
             let hoursApart = abs(source.lastSeenAt.timeIntervalSince(candidate.lastSeenAt)) / 3_600
+            guard hoursApart <= 24 * 14 else { return nil }
             let recencyScore = max(0, 1 - hoursApart / (24 * 14))
             let sourceText = "\(source.summary) \(source.details)"
             let candidateText = "\(candidate.summary) \(candidate.details)"
