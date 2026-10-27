@@ -12,6 +12,18 @@ final class ReportMatcherTests: XCTestCase {
         XCTAssertGreaterThan(candidates.first?.score ?? 0, 0.5)
     }
 
+    func testResolvedSourceDoesNotProduceCandidates() {
+        var resolvedSource = AnimalReport.samples.first { $0.kind == .sighting }!
+        resolvedSource.status = .safe
+
+        let candidates = ReportMatcher().candidates(
+            for: resolvedSource,
+            among: AnimalReport.samples
+        )
+
+        XCTAssertTrue(candidates.isEmpty)
+    }
+
     func testReportsOfSameKindAreNotSuggested() {
         let missingReport = AnimalReport.samples.first { $0.kind == .missing }!
 
