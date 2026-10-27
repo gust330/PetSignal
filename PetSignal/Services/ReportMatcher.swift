@@ -24,7 +24,9 @@ struct ReportMatcher {
         among reports: [AnimalReport],
         minimumScore: Double = 0.35
     ) -> [MatchCandidate] {
-        reports.compactMap { candidate in
+        guard source.status == .active else { return [] }
+
+        return reports.compactMap { candidate in
             guard candidate.id != source.id,
                   candidate.kind != source.kind,
                   candidate.species == source.species,
