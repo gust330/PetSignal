@@ -142,9 +142,12 @@ struct ReportDetailView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Approximate area")
                         .font(.headline)
-                        Text("Shown on a roughly 300-metre privacy grid.")
+                    Text("Shown on a roughly 300-metre privacy grid.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    Text(report.location.approximateAreaDescription)
+                        .font(.subheadline.weight(.semibold))
+                        .accessibilityLabel("Approximate area \(report.location.approximateAreaDescription)")
                 }
                 Spacer()
                 Image(systemName: "location.circle.fill")

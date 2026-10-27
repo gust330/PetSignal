@@ -72,6 +72,13 @@ struct GeoPoint: Hashable {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 
+    var approximateAreaDescription: String {
+        let latitudeDirection = latitude >= 0 ? "N" : "S"
+        let longitudeDirection = longitude >= 0 ? "E" : "W"
+        return "\(abs(latitude).formatted(.number.precision(.fractionLength(4))))° \(latitudeDirection), "
+            + "\(abs(longitude).formatted(.number.precision(.fractionLength(4))))° \(longitudeDirection)"
+    }
+
     static func privacyGridLongitudeDegrees(at latitude: Double) -> Double {
         let cosine = max(abs(cos(latitude * .pi / 180)), 0.01)
         return 300 / (111_320 * cosine)
