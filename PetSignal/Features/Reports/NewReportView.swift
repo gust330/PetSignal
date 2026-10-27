@@ -16,8 +16,10 @@ struct NewReportView: View {
     @State private var locationWasSelected = false
     @State private var mapCenter = CLLocationCoordinate2D(latitude: 38.7223, longitude: -9.1393)
     @State private var locationQuery = ""
+    @State private var selectedPlaceName: String?
     @State private var locationError: String?
     @State private var isSearchingLocation = false
+    @State private var locationSearchTask: Task<Void, Never>?
     @State private var hasEditedDraft = false
     @State private var isProcessingPhoto = false
     @State private var photoLoadID = UUID()
@@ -315,6 +317,7 @@ struct NewReportView: View {
                     latitude: mapCenter.latitude,
                     longitude: mapCenter.longitude
                 )
+                selectedPlaceName = "Map center"
                 locationWasSelected = true
             } label: {
                 Label(
@@ -327,6 +330,7 @@ struct NewReportView: View {
             .accessibilityHint("Selects the approximate area at the center of the map without requiring a map gesture")
 
             if locationWasSelected {
+                LabeledContent("Selected area", value: selectedPlaceName ?? "Map center")
                 LabeledContent("Selected latitude", value: draft.location.latitude.formatted(.number.precision(.fractionLength(4))))
                 LabeledContent("Selected longitude", value: draft.location.longitude.formatted(.number.precision(.fractionLength(4))))
             }
@@ -334,8 +338,8 @@ struct NewReportView: View {
             Text("Approximate last-seen area")
         } footer: {
             Text(locationWasSelected
-                 ? "The public coordinate is placed on a roughly 300-metre grid before publishing."
-                 : "Required. Move the map, then use its center. Never pinpoint a private home or your exact location.")
+                 ? "The saved coordinate is placed on a roughly 300-metre grid on this device."
+                 : "Required. Search for an area or move the map and use its center. Never pinpoint a private home or your exact location.")
         }
     }
 
@@ -378,20 +382,25 @@ struct NewReportView: View {
     private func searchForLocation() {
         let query = locationQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return }
+        locationSearchTask?.cancel()
         isSearchingLocation = true
         locationError = nil
 
-        Task {
+        locationSearchTask = Task {
             let request = MKLocalSearch.Request()
             request.naturalLanguageQuery = query
             do {
                 let response = try await MKLocalSearch(request: request).start()
-                guard let coordinate = response.mapItems.first?.placemark.coordinate else {
+                try Task.checkCancellation()
+                guard locationQuery.trimmingCharacters(in: .whitespacesAndNewlines) == query else { return }
+                guard let mapItem = response.mapItems.first else {
                     locationError = "No area was found. Try a neighborhood or landmark."
                     isSearchingLocation = false
                     return
                 }
+                let coordinate = mapItem.placemark.coordinate
                 mapCenter = coordinate
+                selectedPlaceName = mapItem.name ?? mapItem.placemark.title ?? query
                 draft.location = GeoPoint(latitude: coordinate.latitude, longitude: coordinate.longitude)
                 locationWasSelected = true
                 cameraPosition = .region(
@@ -401,7 +410,10 @@ struct NewReportView: View {
                     )
                 )
                 isSearchingLocation = false
+            } catch is CancellationError {
+                return
             } catch {
+                guard !Task.isCancelled else { return }
                 locationError = "That area could not be found. Check the text and try again."
                 isSearchingLocation = false
             }

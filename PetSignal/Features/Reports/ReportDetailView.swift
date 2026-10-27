@@ -200,7 +200,7 @@ struct ReportDetailView: View {
                                 Spacer()
                                 Text(match.strengthLabel)
                                     .font(.caption.weight(.bold))
-                                    .foregroundStyle(Color.petSignalGreen)
+                                    .foregroundStyle(.primary)
                             }
                             HStack(spacing: 12) {
                                 Label(

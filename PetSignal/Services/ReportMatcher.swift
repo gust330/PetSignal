@@ -82,10 +82,13 @@ struct ReportMatcher {
     }
 
     private func tokens(in value: String) -> Set<String> {
-        Set(
+        let stopWords: Set<String> = [
+            "and", "animal", "near", "reported", "seen", "the", "this", "with"
+        ]
+        return Set(
             value.lowercased()
                 .components(separatedBy: .alphanumerics.inverted)
-                .filter { $0.count > 2 }
+                .filter { $0.count > 2 && !stopWords.contains($0) }
         )
     }
 
