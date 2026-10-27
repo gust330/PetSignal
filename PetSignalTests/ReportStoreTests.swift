@@ -81,6 +81,17 @@ final class ReportStoreTests: XCTestCase {
         }
     }
 
+    func testGeoPointProvidesAReadableApproximateAreaDescription() {
+        XCTAssertEqual(
+            GeoPoint(latitude: 38.7247, longitude: -9.1455).approximateAreaDescription,
+            "38.7247° N, 9.1455° W"
+        )
+        XCTAssertEqual(
+            GeoPoint(latitude: -33.8688, longitude: 151.2093).approximateAreaDescription,
+            "33.8688° S, 151.2093° E"
+        )
+    }
+
     func testPublishedLocationIsPrivacyRounded() {
         let store = ReportStore(reports: [])
         var draft = ReportDraft()
