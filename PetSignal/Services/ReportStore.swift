@@ -15,10 +15,14 @@ final class ReportStore {
     @discardableResult
     func add(_ draft: ReportDraft) -> UUID {
         let id = UUID()
-        let linkedReport = draft.linkedReportID.flatMap { report(withID: $0) }
-        let kind = linkedReport.map { $0.kind == .missing ? ReportKind.sighting : .missing } ?? draft.kind
+        let linkedReport: AnimalReport? = draft.linkedReportID.flatMap { linkedID in
+            self.report(withID: linkedID)
+        }
+        let kind: ReportKind = linkedReport.map { linked in
+            linked.kind == ReportKind.missing ? ReportKind.sighting : ReportKind.missing
+        } ?? draft.kind
         let species = linkedReport?.species ?? draft.species
-        let report = AnimalReport(
+        let newReport = AnimalReport(
             id: id,
             kind: kind,
             species: species,
@@ -32,7 +36,7 @@ final class ReportStore {
             linkedReportID: draft.linkedReportID,
             status: .active
         )
-        reports.insert(report, at: 0)
+        reports.insert(newReport, at: 0)
         createdReportIDs.insert(id)
         return id
     }
