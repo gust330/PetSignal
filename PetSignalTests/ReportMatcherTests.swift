@@ -60,6 +60,42 @@ final class ReportMatcherTests: XCTestCase {
         XCTAssertEqual(match?.sharedTraits, [])
     }
 
+    func testGenericWordsDoNotCountAsSharedTraits() {
+        let source = AnimalReport(
+            id: UUID(),
+            kind: .missing,
+            species: .dog,
+            petName: nil,
+            summary: "Dog seen with the owner",
+            details: "Reported near the road",
+            location: GeoPoint(latitude: 38.7223, longitude: -9.1393),
+            reportedAt: Date(),
+            lastSeenAt: Date(),
+            imageData: nil,
+            linkedReportID: nil,
+            status: .active
+        )
+        let candidate = AnimalReport(
+            id: UUID(),
+            kind: .sighting,
+            species: .dog,
+            petName: nil,
+            summary: "Animal seen with a collar",
+            details: "Reported near the park",
+            location: source.location,
+            reportedAt: Date(),
+            lastSeenAt: Date(),
+            imageData: nil,
+            linkedReportID: nil,
+            status: .active
+        )
+
+        let match = ReportMatcher().candidates(for: source, among: [candidate]).first
+
+        XCTAssertEqual(match?.sharedTraits, [])
+        XCTAssertEqual(match?.strengthLabel, "Location and time align")
+    }
+
     func testReportsOfSameKindAreNotSuggested() {
         let missingReport = AnimalReport.samples.first { $0.kind == .missing }!
 
