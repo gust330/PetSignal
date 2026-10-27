@@ -274,6 +274,13 @@ struct NewReportView: View {
                 .textContentType(.fullStreetAddress)
                 .submitLabel(.search)
                 .onSubmit(searchForLocation)
+                .onChange(of: locationQuery) { _, _ in
+                    locationSearchTask?.cancel()
+                    isSearchingLocation = false
+                    locationWasSelected = false
+                    selectedPlaceName = nil
+                    locationError = nil
+                }
 
             Button(action: searchForLocation) {
                 Label(isSearchingLocation ? "Searching" : "Find area", systemImage: "magnifyingglass")
