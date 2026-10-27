@@ -260,9 +260,9 @@ struct NewReportView: View {
     private var descriptionSection: some View {
         Section("Description") {
             TextField(summaryPrompt, text: $draft.summary, axis: .vertical)
-                .lineLimit(2...4)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2...20 : 2...4)
             TextField(detailsPrompt, text: $draft.details, axis: .vertical)
-                .lineLimit(3...6)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3...20 : 3...6)
         }
     }
 

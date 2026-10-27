@@ -160,7 +160,6 @@ struct MapScreen: View {
             HStack(alignment: .top, spacing: 12) {
                 ReportImage(report: report)
                     .frame(width: 64, height: 64)
-                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 4) {
                     TypePill(kind: report.kind)
                     Text(report.displayName)

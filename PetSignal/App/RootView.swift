@@ -5,7 +5,7 @@ struct RootView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedTab = AppTab.map
     @State private var isPresentingNewReport = false
-    @State private var publishedMessage: String?
+    @State private var savedMessage: String?
     @State private var toastTask: Task<Void, Never>?
 
     var body: some View {
@@ -26,7 +26,7 @@ struct RootView: View {
         .sheet(isPresented: $isPresentingNewReport) {
             NewReportView { _ in
                 toastTask?.cancel()
-                publishedMessage = "Report saved on this device"
+                savedMessage = "Report saved on this device"
                 UIAccessibility.post(
                     notification: .announcement,
                     argument: "Report saved on this device"
@@ -35,13 +35,13 @@ struct RootView: View {
                 toastTask = Task {
                     try? await Task.sleep(for: .seconds(3))
                     guard !Task.isCancelled else { return }
-                    publishedMessage = nil
+                    savedMessage = nil
                 }
             }
         }
         .overlay(alignment: .top) {
-            if let publishedMessage {
-                Label(publishedMessage, systemImage: "checkmark.circle.fill")
+            if let savedMessage {
+                Label(savedMessage, systemImage: "checkmark.circle.fill")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 16)
@@ -52,7 +52,7 @@ struct RootView: View {
                     .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
             }
         }
-        .animation(reduceMotion ? nil : .snappy, value: publishedMessage)
+        .animation(reduceMotion ? nil : .snappy, value: savedMessage)
     }
 }
 
