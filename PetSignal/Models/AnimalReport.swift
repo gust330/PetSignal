@@ -63,6 +63,8 @@ enum ReportStatus: String, CaseIterable, Identifiable, Hashable {
 }
 
 struct GeoPoint: Hashable {
+    static let privacyGridLatitudeDegrees = 300 / 111_320.0
+
     var latitude: Double
     var longitude: Double
 
@@ -70,11 +72,17 @@ struct GeoPoint: Hashable {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 
+    static func privacyGridLongitudeDegrees(at latitude: Double) -> Double {
+        let cosine = max(abs(cos(latitude * .pi / 180)), 0.01)
+        return 300 / (111_320 * cosine)
+    }
+
     var privacyRounded: GeoPoint {
-        let precision = 0.003
+        let latitudeStep = Self.privacyGridLatitudeDegrees
+        let longitudeStep = Self.privacyGridLongitudeDegrees(at: latitude)
         return GeoPoint(
-            latitude: (latitude / precision).rounded() * precision,
-            longitude: (longitude / precision).rounded() * precision
+            latitude: (latitude / latitudeStep).rounded() * latitudeStep,
+            longitude: (longitude / longitudeStep).rounded() * longitudeStep
         )
     }
 }
