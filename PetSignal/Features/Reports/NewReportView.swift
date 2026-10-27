@@ -13,6 +13,7 @@ struct NewReportView: View {
     @State private var draft: ReportDraft
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var locationWasSelected = false
+    @State private var mapCenter = CLLocationCoordinate2D(latitude: 38.7223, longitude: -9.1393)
     @State private var hasEditedDraft = false
     @State private var isProcessingPhoto = false
     @State private var photoLoadID = UUID()
@@ -139,7 +140,7 @@ struct NewReportView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Send a useful signal")
                         .font(.title3.weight(.bold))
-                    Text("Clear details and an approximate location help nearby people act quickly.")
+                    Text("Clear details and an approximate location help people act quickly.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -204,12 +205,15 @@ struct NewReportView: View {
                             .foregroundStyle(.white)
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .disabled(isProcessingPhoto)
+            .accessibilityLabel(draft.imageData == nil ? "Add a clear photo" : "Change photo")
+            .accessibilityHint("Photos are resized and location metadata is removed")
             .onChange(of: selectedPhoto) { _, photo in
                 if photo != nil {
                     hasEditedDraft = true
+                    draft.imageData = nil
                 }
                 loadPhoto(photo)
             }
@@ -250,7 +254,7 @@ struct NewReportView: View {
 
     private var locationSection: some View {
         Section {
-            MapReader { proxy in
+            ZStack {
                 Map(position: $cameraPosition) {
                     if locationWasSelected {
                         MapCircle(center: draft.location.coordinate, radius: 130)
@@ -259,33 +263,47 @@ struct NewReportView: View {
                             .tint(draft.kind.tint)
                     }
                 }
-                .frame(height: 250)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .overlay(alignment: .top) {
-                    if !locationWasSelected {
-                        Label("Tap the map to place the area", systemImage: "hand.tap.fill")
-                            .font(.caption.weight(.semibold))
-                            .padding(.horizontal, 12)
-                            .frame(height: 34)
-                            .background(.regularMaterial, in: Capsule())
-                            .padding(10)
-                    }
+                .frame(height: 230)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .onMapCameraChange(frequency: .continuous) { context in
+                    mapCenter = context.region.center
                 }
-                .onTapGesture { point in
-                    guard let coordinate = proxy.convert(point, from: .local) else { return }
-                    draft.location = GeoPoint(
-                        latitude: coordinate.latitude,
-                        longitude: coordinate.longitude
-                    )
-                    locationWasSelected = true
-                }
+                .accessibilityHidden(true)
+
+                Image(systemName: "plus")
+                    .font(.headline.weight(.bold))
+                    .foregroundStyle(Color.petSignalDeepGreen)
+                    .padding(7)
+                    .background(Color(uiColor: .systemBackground), in: Circle())
+                    .accessibilityHidden(true)
+            }
+
+            Button {
+                draft.location = GeoPoint(
+                    latitude: mapCenter.latitude,
+                    longitude: mapCenter.longitude
+                )
+                locationWasSelected = true
+            } label: {
+                Label(
+                    locationWasSelected ? "Update to map center" : "Use map center",
+                    systemImage: "scope"
+                )
+                .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .buttonStyle(.borderedProminent)
+            .accessibilityHint("Selects the approximate area at the center of the map without requiring a map gesture")
+
+            if locationWasSelected {
+                LabeledContent("Selected latitude", value: draft.location.latitude.formatted(.number.precision(.fractionLength(4))))
+                LabeledContent("Selected longitude", value: draft.location.longitude.formatted(.number.precision(.fractionLength(4))))
             }
         } header: {
             Text("Approximate last-seen area")
         } footer: {
             Text(locationWasSelected
                  ? "The public coordinate is placed on a roughly 300-metre grid before publishing."
-                 : "Required. Never pinpoint a private home or your live location.")
+                 : "Required. Move the map, then use its center. Never pinpoint a private home or your exact location.")
         }
     }
 

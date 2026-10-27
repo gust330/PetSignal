@@ -2,46 +2,68 @@ import SwiftUI
 import UIKit
 
 struct ReportCard: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let report: AnimalReport
     var isSaved = false
 
     var body: some View {
-        HStack(spacing: 15) {
-            ReportImage(report: report)
-                .frame(width: 94, height: 106)
-
-            VStack(alignment: .leading, spacing: 7) {
-                HStack {
-                    TypePill(kind: report.kind)
-                    Spacer()
-                    if isSaved {
-                        Image(systemName: "bookmark.fill")
-                            .font(.caption)
-                            .foregroundStyle(Color.petSignalGreen)
-                    }
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 10) {
+                    ReportImage(report: report)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 150)
+                        .accessibilityHidden(true)
+                    reportInformation
                 }
-
-                Text(report.displayName)
-                    .font(.title3.weight(.bold))
-                Text(report.summary)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-
-                HStack(spacing: 5) {
-                    Image(systemName: "clock")
-                    Text(report.lastSeenAt, style: .relative)
-                    if report.status != .active {
-                        Text("·")
-                        StatusPill(status: report.status)
-                    }
+            } else {
+                HStack(spacing: 14) {
+                    ReportImage(report: report)
+                        .frame(width: 88, height: 104)
+                        .accessibilityHidden(true)
+                    reportInformation
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
             }
         }
         .petSignalCard()
         .accessibilityElement(children: .combine)
+        .accessibilityHint("Opens report details")
+    }
+
+    private var reportInformation: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack {
+                TypePill(kind: report.kind)
+                Spacer()
+                if isSaved {
+                    Image(systemName: "bookmark.fill")
+                        .font(.caption)
+                        .foregroundStyle(Color.petSignalGreen)
+                        .accessibilityLabel("Saved")
+                }
+            }
+
+            Text(report.displayName)
+                .font(.title3.weight(.bold))
+            Text(report.summary)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 4 : 2)
+
+            HStack(spacing: 5) {
+                Label {
+                    Text(report.lastSeenAt, style: .relative)
+                } icon: {
+                    Image(systemName: "clock")
+                }
+                if report.status != .active {
+                    StatusPill(status: report.status)
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -63,6 +85,6 @@ struct ReportImage: View {
                 }
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

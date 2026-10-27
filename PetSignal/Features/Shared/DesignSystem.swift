@@ -13,20 +13,14 @@ struct SignalMark: View {
 
     var body: some View {
         ZStack {
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [.petSignalGreen, .petSignalDeepGreen],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+            RoundedRectangle(cornerRadius: size * 0.16, style: .continuous)
+                .fill(Color.petSignalDeepGreen)
             Image(systemName: "pawprint.fill")
-                .font(.system(size: size * 0.34, weight: .bold))
+                .font(.system(size: size * 0.38, weight: .bold))
                 .foregroundStyle(.white)
             Image(systemName: "dot.radiowaves.left.and.right")
-                .font(.system(size: size * 0.78, weight: .light))
-                .foregroundStyle(Color.petSignalAmber.opacity(0.8))
+                .font(.system(size: size * 0.76, weight: .light))
+                .foregroundStyle(Color.petSignalAmber)
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
@@ -77,8 +71,8 @@ struct SafetyBanner: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(14)
-        .background(Color.petSignalGreen.opacity(0.09), in: RoundedRectangle(cornerRadius: 16))
+        .padding(12)
+        .background(Color.petSignalGreen.opacity(0.09), in: RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -112,12 +106,11 @@ extension ReportStatus {
 
 extension View {
     func petSignalCard() -> some View {
-        padding(16)
-            .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        padding(14)
+            .background(Color(uiColor: .systemBackground), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(Color.primary.opacity(0.12), lineWidth: 1)
             }
-            .shadow(color: Color.petSignalDeepGreen.opacity(0.07), radius: 14, y: 6)
     }
 }

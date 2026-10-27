@@ -3,6 +3,12 @@ import SwiftUI
 
 struct MapScreen: View {
     @Environment(ReportStore.self) private var reportStore
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let onCreateReport: () -> Void
+
+    init(onCreateReport: @escaping () -> Void = {}) {
+        self.onCreateReport = onCreateReport
+    }
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 38.7223, longitude: -9.1393),
@@ -10,7 +16,6 @@ struct MapScreen: View {
         )
     )
     @State private var selectedReportID: UUID?
-    @State private var isShowingDetail = false
     @State private var filter: ReportKind?
 
     private var visibleReports: [AnimalReport] {
@@ -32,100 +37,116 @@ struct MapScreen: View {
                     .tag(report.id)
                 }
             }
-            .mapStyle(.standard(elevation: .realistic, pointsOfInterest: .excludingAll))
+            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
             .mapControls {
                 MapCompass()
                 MapScaleView()
             }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                mapHeader
-            }
-            .safeAreaInset(edge: .bottom, spacing: 10) {
+            .safeAreaInset(edge: .top, spacing: 0) { mapHeader }
+            .safeAreaInset(edge: .bottom, spacing: 8) {
                 if let selectedReportID,
                    let report = reportStore.report(withID: selectedReportID) {
-                    selectedReportCard(report)
+                    selectedReportStrip(report)
                         .padding(.horizontal, 12)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
                 }
             }
-            .sheet(isPresented: $isShowingDetail, onDismiss: {
-                selectedReportID = nil
-            }) {
-                if let selectedReportID {
-                    NavigationStack {
-                        ReportDetailView(reportID: selectedReportID)
-                    }
-                    .presentationDetents([.large])
+            .overlay {
+                if visibleReports.isEmpty {
+                    ContentUnavailableView(
+                        "No active reports",
+                        systemImage: "map",
+                        description: Text(filter == nil
+                            ? "Published active reports will appear on this map."
+                            : "No active \(filter?.rawValue.lowercased() ?? "") reports match this filter.")
+                    )
+                    .padding(20)
+                    .background(Color(uiColor: .systemBackground), in: RoundedRectangle(cornerRadius: 10))
+                    .padding()
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
-            .animation(.snappy, value: selectedReportID)
+            .animation(reduceMotion ? nil : .snappy, value: selectedReportID)
         }
     }
 
     private var mapHeader: some View {
-        VStack(spacing: 10) {
-            HStack {
-                SignalMark(size: 42)
+        VStack(spacing: 8) {
+            HStack(spacing: 10) {
+                SignalMark(size: 40)
                 VStack(alignment: .leading, spacing: 1) {
                     Text("PetSignal")
                         .font(.headline.weight(.bold))
-                    Text("\(visibleReports.count) active nearby")
+                    Text("\(visibleReports.count) active \(visibleReports.count == 1 ? "report" : "reports") on map")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                HStack(spacing: 5) {
-                    Circle().fill(Color.petSignalGreen).frame(width: 7, height: 7)
-                    Text("Community live")
-                        .font(.caption.weight(.semibold))
+                Button(action: onCreateReport) {
+                    Label("New report", systemImage: "plus")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(minHeight: 44)
                 }
-                .padding(.horizontal, 10)
-                .frame(height: 30)
-                .background(.thinMaterial, in: Capsule())
+                .buttonStyle(.borderedProminent)
+                .accessibilityHint("Opens the report form")
             }
 
-            HStack(spacing: 8) {
-                filterButton("All", systemImage: "map.fill", value: nil)
-                ForEach(ReportKind.allCases) { kind in
-                    filterButton(kind.rawValue, systemImage: kind.systemImage, value: kind)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) { filterControls }
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) { filterControls }
                 }
-                Spacer()
             }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .background(.ultraThinMaterial)
+        .background(Color(uiColor: .systemBackground))
+        .overlay(alignment: .bottom) { Divider() }
     }
 
-    private func selectedReportCard(_ report: AnimalReport) -> some View {
-        HStack(spacing: 12) {
-            ReportImage(report: report)
-                .frame(width: 68, height: 68)
-            VStack(alignment: .leading, spacing: 4) {
-                TypePill(kind: report.kind)
-                Text(report.displayName)
-                    .font(.headline)
-                Text(report.summary)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+    @ViewBuilder
+    private var filterControls: some View {
+        filterButton("All", systemImage: "map.fill", value: nil)
+        ForEach(ReportKind.allCases) { kind in
+            filterButton(kind.rawValue, systemImage: kind.systemImage, value: kind)
+        }
+        Spacer(minLength: 0)
+    }
+
+    private func selectedReportStrip(_ report: AnimalReport) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 12) {
+                ReportImage(report: report)
+                    .frame(width: 64, height: 64)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 4) {
+                    TypePill(kind: report.kind)
+                    Text(report.displayName)
+                        .font(.headline)
+                    Text(report.lastSeenAt, style: .relative)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
             }
-            Spacer(minLength: 4)
-            Button {
-                isShowingDetail = true
+            NavigationLink {
+                ReportDetailView(reportID: report.id)
             } label: {
-                Image(systemName: "arrow.right")
+                Text("View report")
                     .font(.headline)
                     .foregroundStyle(.white)
-                    .frame(width: 44, height: 44)
-                    .background(Color.petSignalGreen, in: Circle())
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(Color.petSignalGreen, in: RoundedRectangle(cornerRadius: 8))
             }
-            .accessibilityLabel("View \(report.displayName)")
+            .accessibilityHint("Opens details and safe follow-up actions")
         }
         .padding(12)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .shadow(color: .black.opacity(0.12), radius: 16, y: 8)
+        .background(Color(uiColor: .systemBackground), in: RoundedRectangle(cornerRadius: 10))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.primary.opacity(0.14), lineWidth: 1)
+        }
+        .accessibilityElement(children: .contain)
     }
 
     private func filterButton(_ title: String, systemImage: String, value: ReportKind?) -> some View {
@@ -137,15 +158,17 @@ struct MapScreen: View {
             }
         } label: {
             Label(title, systemImage: systemImage)
-                .font(.caption.weight(.semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(filter == value ? .white : .primary)
-                .padding(.horizontal, 11)
-                .frame(height: 34)
+                .padding(.horizontal, 12)
+                .frame(minHeight: 44)
                 .background(
                     filter == value ? Color.petSignalGreen : Color(uiColor: .tertiarySystemFill),
-                    in: Capsule()
+                    in: RoundedRectangle(cornerRadius: 8)
                 )
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(filter == value ? .isSelected : [])
+        .accessibilityHint("Filters reports shown on the map")
     }
 }

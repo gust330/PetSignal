@@ -2,6 +2,12 @@ import SwiftUI
 
 struct ReportsScreen: View {
     @Environment(ReportStore.self) private var reportStore
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let onCreateReport: () -> Void
+
+    init(onCreateReport: @escaping () -> Void = {}) {
+        self.onCreateReport = onCreateReport
+    }
     @State private var filter = ReportFilter.active
     @State private var searchText = ""
 
@@ -51,6 +57,14 @@ struct ReportsScreen: View {
             }
             .background(Color(uiColor: .secondarySystemBackground))
             .navigationTitle("Community")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: onCreateReport) {
+                        Label("New report", systemImage: "plus")
+                    }
+                    .accessibilityHint("Opens the report form")
+                }
+            }
             .navigationDestination(for: UUID.self) { reportID in
                 ReportDetailView(reportID: reportID)
             }
@@ -65,9 +79,9 @@ struct ReportsScreen: View {
         HStack(spacing: 16) {
             SignalMark(size: 58)
             VStack(alignment: .leading, spacing: 3) {
-                Text("Signals near you")
+                Text("Community reports")
                     .font(.title2.weight(.bold))
-                Text("\(activeReports.count) active reports · community verified updates")
+                Text("\(activeReports.count) active \(activeReports.count == 1 ? "report" : "reports")")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -82,21 +96,25 @@ struct ReportsScreen: View {
             HStack(spacing: 8) {
                 ForEach(ReportFilter.allCases) { option in
                     Button {
-                        withAnimation(.snappy) {
+                        if reduceMotion {
                             filter = option
+                        } else {
+                            withAnimation(.snappy) { filter = option }
                         }
                     } label: {
                         Label(option.rawValue, systemImage: option.systemImage)
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(filter == option ? .white : .primary)
                             .padding(.horizontal, 13)
-                            .frame(height: 36)
+                            .frame(minHeight: 44)
                             .background(
                                 filter == option ? Color.petSignalGreen : Color(uiColor: .tertiarySystemFill),
-                                in: Capsule()
+                                in: RoundedRectangle(cornerRadius: 8)
                             )
                     }
                     .buttonStyle(.plain)
+                    .accessibilityAddTraits(filter == option ? .isSelected : [])
+                    .accessibilityHint("Filters the report list")
                 }
             }
             .padding(.horizontal, 16)

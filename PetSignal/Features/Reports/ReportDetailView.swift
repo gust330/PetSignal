@@ -57,7 +57,9 @@ struct ReportDetailView: View {
                             Image(systemName: reportStore.savedReportIDs.contains(report.id)
                                   ? "bookmark.fill" : "bookmark")
                         }
-                        .accessibilityLabel("Save report")
+                        .accessibilityLabel(reportStore.savedReportIDs.contains(report.id)
+                            ? "Remove saved report" : "Save report")
+                        .accessibilityHint("Changes whether this report appears in Saved")
                     }
                 }
                 .sheet(isPresented: $isShowingFollowUp) {
@@ -91,30 +93,20 @@ struct ReportDetailView: View {
     }
 
     private func hero(_ report: AnimalReport) -> some View {
-        ZStack(alignment: .bottomLeading) {
+        VStack(alignment: .leading, spacing: 12) {
             ReportImage(report: report)
                 .frame(maxWidth: .infinity)
-                .frame(height: 285)
+                .frame(height: 260)
+                .accessibilityHidden(true)
 
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.72)],
-                startPoint: .center,
-                endPoint: .bottom
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 24))
-
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    TypePill(kind: report.kind)
-                    StatusPill(status: report.status)
-                }
-                Text(report.displayName)
-                    .font(.largeTitle.weight(.heavy))
-                    .foregroundStyle(.white)
+            HStack {
+                TypePill(kind: report.kind)
+                StatusPill(status: report.status)
             }
-            .padding(20)
+            Text(report.displayName)
+                .font(.largeTitle.weight(.bold))
+                .foregroundStyle(.primary)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .padding(.top, 8)
     }
 
@@ -128,9 +120,15 @@ struct ReportDetailView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             Divider()
-            HStack(spacing: 18) {
-                Label(report.species.rawValue, systemImage: report.species.systemImage)
-                Label(report.lastSeenAt.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 18) {
+                    Label(report.species.rawValue, systemImage: report.species.systemImage)
+                    Label(report.lastSeenAt.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
+                }
+                VStack(alignment: .leading, spacing: 8) {
+                    Label(report.species.rawValue, systemImage: report.species.systemImage)
+                    Label(report.lastSeenAt.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
+                }
             }
             .font(.footnote.weight(.medium))
             .foregroundStyle(.secondary)
@@ -169,7 +167,7 @@ struct ReportDetailView: View {
                     .stroke(report.kind.tint, lineWidth: 2)
             }
             .frame(height: 170)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .petSignalCard()
     }
@@ -295,9 +293,8 @@ struct ReportDetailView: View {
             )
             .font(.headline)
             .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .frame(height: 52)
-            .background(Color.petSignalGreen, in: RoundedRectangle(cornerRadius: 16))
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .background(Color.petSignalGreen, in: RoundedRectangle(cornerRadius: 8))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
