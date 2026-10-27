@@ -17,6 +17,16 @@ final class ReportStoreTests: XCTestCase {
         XCTAssertTrue(store.reports.isEmpty)
     }
 
+    func testPublishingRejectsInvalidImageData() {
+        let store = ReportStore(reports: [])
+        var draft = ReportDraft()
+        draft.summary = "Dog near the station"
+        draft.imageData = Data("not an image".utf8)
+
+        XCTAssertThrowsError(try store.add(draft))
+        XCTAssertTrue(store.reports.isEmpty)
+    }
+
     func testPublishedLocationIsPrivacyRounded() {
         let store = ReportStore(reports: [])
         var draft = ReportDraft()
