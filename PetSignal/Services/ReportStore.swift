@@ -1,6 +1,13 @@
 import Foundation
 import Observation
 
+extension ReportStore {
+    enum PublishError: Error, Equatable {
+        case invalidLocation
+        case invalidImage
+    }
+}
+
 @MainActor
 @Observable
 final class ReportStore {
@@ -13,7 +20,22 @@ final class ReportStore {
     }
 
     @discardableResult
-    func add(_ draft: ReportDraft) -> UUID {
+    func add(_ draft: ReportDraft) throws -> UUID {
+        guard (-90...90).contains(draft.location.latitude),
+              (-180...180).contains(draft.location.longitude) else {
+            throw PublishError.invalidLocation
+        }
+
+        let sanitizedImageData: Data?
+        if let imageData = draft.imageData {
+            guard let sanitized = ImageSanitizer.sanitizedJPEGData(from: imageData) else {
+                throw PublishError.invalidImage
+            }
+            sanitizedImageData = sanitized
+        } else {
+            sanitizedImageData = nil
+        }
+
         let id = UUID()
         let linkedReport: AnimalReport? = draft.linkedReportID.flatMap { linkedID in
             self.report(withID: linkedID)
@@ -32,7 +54,7 @@ final class ReportStore {
             location: draft.location.privacyRounded,
             reportedAt: Date(),
             lastSeenAt: draft.lastSeenAt,
-            imageData: draft.imageData,
+            imageData: sanitizedImageData,
             linkedReportID: draft.linkedReportID,
             status: .active
         )

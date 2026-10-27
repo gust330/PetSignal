@@ -17,6 +17,7 @@ struct NewReportView: View {
     @State private var isProcessingPhoto = false
     @State private var photoLoadID = UUID()
     @State private var photoError: String?
+    @State private var publishError: String?
     @State private var isShowingDiscardConfirmation = false
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
@@ -91,9 +92,13 @@ struct NewReportView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Publish") {
-                        let reportID = reportStore.add(draft)
-                        onPublished(reportID)
-                        dismiss()
+                        do {
+                            let reportID = try reportStore.add(draft)
+                            onPublished(reportID)
+                            dismiss()
+                        } catch {
+                            publishError = "This report could not be published. Check the location and photo, then try again."
+                        }
                     }
                     .fontWeight(.bold)
                     .disabled(!canSubmit)
@@ -113,6 +118,17 @@ struct NewReportView: View {
             Button("Keep editing", role: .cancel) {}
         } message: {
             Text("Your photos and details have not been published.")
+        }
+        .alert(
+            "Unable to publish",
+            isPresented: Binding(
+                get: { publishError != nil },
+                set: { if !$0 { publishError = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) { publishError = nil }
+        } message: {
+            Text(publishError ?? "")
         }
     }
 

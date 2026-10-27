@@ -33,7 +33,7 @@ final class ReportStoreTests: XCTestCase {
         draft.summary = "Small dog wearing a blue collar"
         draft.location = GeoPoint(latitude: 38.72234, longitude: -9.13926)
 
-        let reportID = store.add(draft)
+        let reportID = try! store.add(draft)
         guard let report = store.report(withID: reportID) else {
             return XCTFail("Published report was not stored")
         }
@@ -48,7 +48,7 @@ final class ReportStoreTests: XCTestCase {
         var draft = ReportDraft()
         draft.kind = .missing
         draft.summary = "Orange cat with a green collar"
-        let reportID = store.add(draft)
+        let reportID = try! store.add(draft)
 
         store.updateStatus(.reunited, for: reportID)
 
@@ -71,13 +71,13 @@ final class ReportStoreTests: XCTestCase {
         var parentDraft = ReportDraft()
         parentDraft.kind = .missing
         parentDraft.summary = "Missing black dog"
-        let parentID = store.add(parentDraft)
+        let parentID = try! store.add(parentDraft)
 
         var followUpDraft = ReportDraft()
         followUpDraft.kind = .sighting
         followUpDraft.summary = "Black dog seen nearby"
         followUpDraft.linkedReportID = parentID
-        let followUpID = store.add(followUpDraft)
+        let followUpID = try! store.add(followUpDraft)
 
         store.delete(parentID)
 
@@ -93,7 +93,7 @@ final class ReportStoreTests: XCTestCase {
         followUpDraft.summary = "Possible sighting"
         followUpDraft.linkedReportID = parent.id
 
-        let followUpID = store.add(followUpDraft)
+        let followUpID = try! store.add(followUpDraft)
         let followUp = store.report(withID: followUpID)
 
         XCTAssertEqual(followUp?.kind, .sighting)
