@@ -13,14 +13,12 @@ struct ReportCard: View {
                     ReportImage(report: report)
                         .frame(maxWidth: .infinity)
                         .frame(height: 150)
-                        .accessibilityHidden(true)
                     reportInformation
                 }
             } else {
                 HStack(spacing: 14) {
                     ReportImage(report: report)
                         .frame(width: 88, height: 104)
-                        .accessibilityHidden(true)
                     reportInformation
                 }
             }
@@ -48,7 +46,7 @@ struct ReportCard: View {
             Text(report.summary)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 4 : 2)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
 
             HStack(spacing: 5) {
                 Label {
@@ -86,5 +84,8 @@ struct ReportImage: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .accessibilityLabel(report.imageData == nil
+            ? "No report photo for \(report.displayName)"
+            : "Report photo for \(report.displayName)")
     }
 }

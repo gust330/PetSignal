@@ -97,7 +97,6 @@ struct ReportDetailView: View {
             ReportImage(report: report)
                 .frame(maxWidth: .infinity)
                 .frame(height: 260)
-                .accessibilityHidden(true)
 
             HStack {
                 TypePill(kind: report.kind)
@@ -168,6 +167,7 @@ struct ReportDetailView: View {
             }
             .frame(height: 170)
             .clipShape(RoundedRectangle(cornerRadius: 10))
+            .accessibilityHidden(true)
         }
         .petSignalCard()
     }
@@ -264,6 +264,7 @@ struct ReportDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .buttonStyle(.bordered)
+                .frame(minHeight: 44)
                 Button {
                     reportStore.updateStatus(.closed, for: report.id)
                 } label: {
@@ -271,6 +272,7 @@ struct ReportDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .buttonStyle(.bordered)
+                .frame(minHeight: 44)
             }
             Button(role: .destructive) {
                 isShowingDeleteConfirmation = true
@@ -279,6 +281,7 @@ struct ReportDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .buttonStyle(.bordered)
+            .frame(minHeight: 44)
         }
         .petSignalCard()
     }

@@ -10,9 +10,10 @@ struct MatchCandidate: Identifiable, Equatable {
     var id: UUID { report.id }
 
     var strengthLabel: String {
+        guard !sharedTraits.isEmpty else { return "Location and time align" }
         switch score {
-        case 0.72...: return "Strong possibility"
-        case 0.54...: return "Good possibility"
+        case 0.72...: return "More details align"
+        case 0.54...: return "Some details align"
         default: return "Possible match"
         }
     }

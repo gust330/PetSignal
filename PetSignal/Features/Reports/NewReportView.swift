@@ -5,6 +5,7 @@ import UIKit
 
 struct NewReportView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(ReportStore.self) private var reportStore
 
     private let followingUpOn: AnimalReport?
@@ -14,6 +15,9 @@ struct NewReportView: View {
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var locationWasSelected = false
     @State private var mapCenter = CLLocationCoordinate2D(latitude: 38.7223, longitude: -9.1393)
+    @State private var locationQuery = ""
+    @State private var locationError: String?
+    @State private var isSearchingLocation = false
     @State private var hasEditedDraft = false
     @State private var isProcessingPhoto = false
     @State private var photoLoadID = UUID()
@@ -62,7 +66,7 @@ struct NewReportView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Following up on \(followingUpOn.displayName)")
                                     .font(.headline)
-                                Text("This report will be connected for the community.")
+                                Text("This report will be linked on this device.")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -92,13 +96,13 @@ struct NewReportView: View {
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Publish") {
+                    Button("Save") {
                         do {
                             let reportID = try reportStore.add(draft)
                             onPublished(reportID)
                             dismiss()
                         } catch {
-                            publishError = "This report could not be published. Check the location and photo, then try again."
+                            publishError = "This report could not be saved. Check the location and photo, then try again."
                         }
                     }
                     .fontWeight(.bold)
@@ -118,10 +122,10 @@ struct NewReportView: View {
             Button("Discard report", role: .destructive) { dismiss() }
             Button("Keep editing", role: .cancel) {}
         } message: {
-            Text("Your photos and details have not been published.")
+            Text("Your photos and details have not been saved.")
         }
         .alert(
-            "Unable to publish",
+            "Unable to save",
             isPresented: Binding(
                 get: { publishError != nil },
                 set: { if !$0 { publishError = nil } }
@@ -151,13 +155,23 @@ struct NewReportView: View {
 
     private var detailsSection: some View {
         Section("What happened?") {
-            Picker("Report type", selection: $draft.kind) {
-                ForEach(ReportKind.allCases) { kind in
-                    Label(kind.rawValue, systemImage: kind.systemImage).tag(kind)
+            if dynamicTypeSize.isAccessibilitySize {
+                Picker("Report type", selection: $draft.kind) {
+                    ForEach(ReportKind.allCases) { kind in
+                        Label(kind.rawValue, systemImage: kind.systemImage).tag(kind)
+                    }
                 }
+                .pickerStyle(.inline)
+                .disabled(followingUpOn != nil)
+            } else {
+                Picker("Report type", selection: $draft.kind) {
+                    ForEach(ReportKind.allCases) { kind in
+                        Label(kind.rawValue, systemImage: kind.systemImage).tag(kind)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .disabled(followingUpOn != nil)
             }
-            .pickerStyle(.segmented)
-            .disabled(followingUpOn != nil)
 
             Picker("Animal", selection: $draft.species) {
                 ForEach(AnimalSpecies.allCases) { species in
@@ -254,6 +268,24 @@ struct NewReportView: View {
 
     private var locationSection: some View {
         Section {
+            TextField("Neighborhood, landmark, or address", text: $locationQuery)
+                .textContentType(.fullStreetAddress)
+                .submitLabel(.search)
+                .onSubmit(searchForLocation)
+
+            Button(action: searchForLocation) {
+                Label(isSearchingLocation ? "Searching" : "Find area", systemImage: "magnifyingglass")
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .disabled(locationQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSearchingLocation)
+            .accessibilityHint("Finds an approximate map area from typed text")
+
+            if let locationError {
+                Label(locationError, systemImage: "exclamationmark.triangle.fill")
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+            }
+
             ZStack {
                 Map(position: $cameraPosition) {
                     if locationWasSelected {
@@ -340,6 +372,40 @@ struct NewReportView: View {
         Label(title, systemImage: complete ? "checkmark.circle.fill" : "circle")
             .font(.subheadline)
             .foregroundStyle(complete ? Color.petSignalGreen : .secondary)
+            .accessibilityValue(complete ? "Complete" : "Required")
+    }
+
+    private func searchForLocation() {
+        let query = locationQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return }
+        isSearchingLocation = true
+        locationError = nil
+
+        Task {
+            let request = MKLocalSearch.Request()
+            request.naturalLanguageQuery = query
+            do {
+                let response = try await MKLocalSearch(request: request).start()
+                guard let coordinate = response.mapItems.first?.placemark.coordinate else {
+                    locationError = "No area was found. Try a neighborhood or landmark."
+                    isSearchingLocation = false
+                    return
+                }
+                mapCenter = coordinate
+                draft.location = GeoPoint(latitude: coordinate.latitude, longitude: coordinate.longitude)
+                locationWasSelected = true
+                cameraPosition = .region(
+                    MKCoordinateRegion(
+                        center: coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.025, longitudeDelta: 0.025)
+                    )
+                )
+                isSearchingLocation = false
+            } catch {
+                locationError = "That area could not be found. Check the text and try again."
+                isSearchingLocation = false
+            }
+        }
     }
 
     private func loadPhoto(_ photo: PhotosPickerItem?) {

@@ -26,6 +26,12 @@ final class ReportStore {
             throw PublishError.invalidLocation
         }
 
+        let publicLocation = draft.location.privacyRounded
+        guard (-90...90).contains(publicLocation.latitude),
+              (-180...180).contains(publicLocation.longitude) else {
+            throw PublishError.invalidLocation
+        }
+
         let sanitizedImageData: Data?
         if let imageData = draft.imageData {
             guard let sanitized = ImageSanitizer.sanitizedJPEGData(from: imageData) else {
@@ -51,7 +57,7 @@ final class ReportStore {
             petName: draft.petName.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
             summary: draft.summary.trimmingCharacters(in: .whitespacesAndNewlines),
             details: draft.details.trimmingCharacters(in: .whitespacesAndNewlines),
-            location: draft.location.privacyRounded,
+            location: publicLocation,
             reportedAt: Date(),
             lastSeenAt: draft.lastSeenAt,
             imageData: sanitizedImageData,

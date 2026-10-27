@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct RootView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -25,7 +26,11 @@ struct RootView: View {
         .sheet(isPresented: $isPresentingNewReport) {
             NewReportView { _ in
                 toastTask?.cancel()
-                publishedMessage = "Report published"
+                publishedMessage = "Report saved on this device"
+                UIAccessibility.post(
+                    notification: .announcement,
+                    argument: "Report saved on this device"
+                )
                 selectedTab = .reports
                 toastTask = Task {
                     try? await Task.sleep(for: .seconds(3))

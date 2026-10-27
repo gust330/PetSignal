@@ -80,9 +80,11 @@ struct GeoPoint: Hashable {
     var privacyRounded: GeoPoint {
         let latitudeStep = Self.privacyGridLatitudeDegrees
         let longitudeStep = Self.privacyGridLongitudeDegrees(at: latitude)
+        let roundedLatitude = (latitude / latitudeStep).rounded() * latitudeStep
+        let roundedLongitude = (longitude / longitudeStep).rounded() * longitudeStep
         return GeoPoint(
-            latitude: (latitude / latitudeStep).rounded() * latitudeStep,
-            longitude: (longitude / longitudeStep).rounded() * longitudeStep
+            latitude: min(max(roundedLatitude, -90), 90),
+            longitude: min(max(roundedLongitude, -180), 180)
         )
     }
 }

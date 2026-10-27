@@ -33,10 +33,10 @@ struct TypePill: View {
     var body: some View {
         Label(kind.rawValue, systemImage: kind.systemImage)
             .font(.caption.weight(.bold))
-            .foregroundStyle(kind.tint)
+            .foregroundStyle(.primary)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(kind.tint.opacity(0.12), in: Capsule())
+            .background(kind.tint.opacity(0.16), in: Capsule())
     }
 }
 
@@ -44,12 +44,12 @@ struct StatusPill: View {
     let status: ReportStatus
 
     var body: some View {
-        Label(status.rawValue, systemImage: status.systemImage)
+        Label(status.displayName, systemImage: status.systemImage)
             .font(.caption.weight(.semibold))
-            .foregroundStyle(status.tint)
+            .foregroundStyle(.primary)
             .padding(.horizontal, 9)
             .padding(.vertical, 5)
-            .background(status.tint.opacity(0.12), in: Capsule())
+            .background(status.tint.opacity(0.16), in: Capsule())
     }
 }
 
@@ -65,8 +65,8 @@ struct SafetyBanner: View {
                 Text("Approach with care")
                     .font(.subheadline.weight(.bold))
                 Text(kind == .sighting
-                     ? "Do not chase or corner the animal. Observe from a safe distance and update the location if it moves."
-                     : "Check before approaching. A frightened pet may run even when called by name.")
+                     ? "Do not chase or corner the animal. Observe from a safe distance. If it is injured, trapped, aggressive, or in immediate danger, contact local animal or emergency services."
+                     : "Check before approaching. A frightened pet may run even when called. If it is injured, trapped, aggressive, or in immediate danger, contact local animal or emergency services.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -86,6 +86,15 @@ extension ReportKind {
 }
 
 extension ReportStatus {
+    var displayName: String {
+        switch self {
+        case .active: return "Active"
+        case .reunited: return "Reported reunited"
+        case .safe: return "Reported safe"
+        case .closed: return "Closed"
+        }
+    }
+
     var tint: Color {
         switch self {
         case .active: return .petSignalGreen

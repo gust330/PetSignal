@@ -4,6 +4,8 @@ import SwiftUI
 struct MapScreen: View {
     @Environment(ReportStore.self) private var reportStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @AccessibilityFocusState private var focusedReportID: UUID?
     let onCreateReport: () -> Void
 
     init(onCreateReport: @escaping () -> Void = {}) {
@@ -28,12 +30,21 @@ struct MapScreen: View {
         NavigationStack {
             Map(position: $cameraPosition, selection: $selectedReportID) {
                 ForEach(visibleReports) { report in
-                    Marker(
+                    Annotation(
                         report.displayName,
-                        systemImage: report.kind.systemImage,
-                        coordinate: report.location.coordinate
-                    )
-                    .tint(report.kind.tint)
+                        coordinate: report.location.coordinate,
+                        anchor: .center
+                    ) {
+                        ZStack {
+                            Circle()
+                                .fill(report.kind.tint.opacity(0.22))
+                                .frame(width: 44, height: 44)
+                            Image(systemName: report.kind.systemImage)
+                                .foregroundStyle(.primary)
+                        }
+                        .accessibilityLabel("Approximate area for \(report.displayName)")
+                        .accessibilityHint("Selects this report")
+                    }
                     .tag(report.id)
                 }
             }
@@ -44,8 +55,7 @@ struct MapScreen: View {
             }
             .safeAreaInset(edge: .top, spacing: 0) { mapHeader }
             .safeAreaInset(edge: .bottom, spacing: 8) {
-                if let selectedReportID,
-                   let report = reportStore.report(withID: selectedReportID) {
+                if let report = selectedVisibleReport {
                     selectedReportStrip(report)
                         .padding(.horizontal, 12)
                         .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
@@ -57,7 +67,7 @@ struct MapScreen: View {
                         "No active reports",
                         systemImage: "map",
                         description: Text(filter == nil
-                            ? "Published active reports will appear on this map."
+                            ? "Saved active reports appear on this map."
                             : "No active \(filter?.rawValue.lowercased() ?? "") reports match this filter.")
                     )
                     .padding(20)
@@ -67,28 +77,47 @@ struct MapScreen: View {
             }
             .toolbar(.hidden, for: .navigationBar)
             .animation(reduceMotion ? nil : .snappy, value: selectedReportID)
+            .onChange(of: selectedReportID) { _, reportID in
+                focusedReportID = reportID
+            }
+            .onChange(of: visibleReports.map(\.id)) { _, visibleIDs in
+                if let selectedReportID, !visibleIDs.contains(selectedReportID) {
+                    self.selectedReportID = nil
+                }
+            }
         }
+    }
+
+    private var selectedVisibleReport: AnimalReport? {
+        guard let selectedReportID else { return nil }
+        return visibleReports.first { $0.id == selectedReportID }
     }
 
     private var mapHeader: some View {
         VStack(spacing: 8) {
-            HStack(spacing: 10) {
-                SignalMark(size: 40)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("PetSignal")
-                        .font(.headline.weight(.bold))
-                    Text("\(visibleReports.count) active \(visibleReports.count == 1 ? "report" : "reports") on map")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 8) {
+                    brandSummary
+                    Button(action: onCreateReport) {
+                        Label("New report", systemImage: "plus")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityHint("Opens the report form")
                 }
-                Spacer()
-                Button(action: onCreateReport) {
-                    Label("New report", systemImage: "plus")
-                        .font(.subheadline.weight(.semibold))
-                        .frame(minHeight: 44)
+            } else {
+                HStack(spacing: 10) {
+                    brandSummary
+                    Spacer()
+                    Button(action: onCreateReport) {
+                        Label("New report", systemImage: "plus")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(minHeight: 44)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityHint("Opens the report form")
                 }
-                .buttonStyle(.borderedProminent)
-                .accessibilityHint("Opens the report form")
             }
 
             ViewThatFits(in: .horizontal) {
@@ -102,6 +131,19 @@ struct MapScreen: View {
         .padding(.vertical, 10)
         .background(Color(uiColor: .systemBackground))
         .overlay(alignment: .bottom) { Divider() }
+    }
+
+    private var brandSummary: some View {
+        HStack(spacing: 10) {
+            SignalMark(size: 40)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("PetSignal")
+                    .font(.headline.weight(.bold))
+                Text("\(visibleReports.count) active \(visibleReports.count == 1 ? "report" : "reports") on map")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 
     @ViewBuilder
@@ -147,6 +189,7 @@ struct MapScreen: View {
                 .stroke(Color.primary.opacity(0.14), lineWidth: 1)
         }
         .accessibilityElement(children: .contain)
+        .accessibilityFocused($focusedReportID, equals: report.id)
     }
 
     private func filterButton(_ title: String, systemImage: String, value: ReportKind?) -> some View {
