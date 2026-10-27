@@ -96,6 +96,41 @@ final class ReportMatcherTests: XCTestCase {
         XCTAssertEqual(match?.strengthLabel, "Location and time align")
     }
 
+    func testOldReportAtSameLocationDoesNotClaimTimeAlignment() {
+        let source = AnimalReport(
+            id: UUID(),
+            kind: .missing,
+            species: .dog,
+            petName: nil,
+            summary: "Black dog",
+            details: "White chest",
+            location: GeoPoint(latitude: 38.7223, longitude: -9.1393),
+            reportedAt: Date(),
+            lastSeenAt: Date(),
+            imageData: nil,
+            linkedReportID: nil,
+            status: .active
+        )
+        let oldCandidate = AnimalReport(
+            id: UUID(),
+            kind: .sighting,
+            species: .dog,
+            petName: nil,
+            summary: "Golden animal",
+            details: "Blue harness",
+            location: source.location,
+            reportedAt: Date().addingTimeInterval(-60 * 60 * 24 * 90),
+            lastSeenAt: Date().addingTimeInterval(-60 * 60 * 24 * 90),
+            imageData: nil,
+            linkedReportID: nil,
+            status: .active
+        )
+
+        let matches = ReportMatcher().candidates(for: source, among: [oldCandidate])
+
+        XCTAssertTrue(matches.isEmpty)
+    }
+
     func testReportsOfSameKindAreNotSuggested() {
         let missingReport = AnimalReport.samples.first { $0.kind == .missing }!
 

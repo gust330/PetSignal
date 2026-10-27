@@ -42,6 +42,22 @@ final class ReportStoreTests: XCTestCase {
         }
     }
 
+    func testPrivacyLongitudeGridUsesPublishedLatitudeCell() {
+        let latitudeStep = GeoPoint.privacyGridLatitudeDegrees
+        let cellCenter = 38.72234
+        let first = GeoPoint(
+            latitude: cellCenter - latitudeStep * 0.2,
+            longitude: -9.13926
+        ).privacyRounded
+        let second = GeoPoint(
+            latitude: cellCenter + latitudeStep * 0.2,
+            longitude: -9.13926
+        ).privacyRounded
+
+        XCTAssertEqual(first.latitude, second.latitude, accuracy: 0.000_000_1)
+        XCTAssertEqual(first.longitude, second.longitude, accuracy: 0.000_000_1)
+    }
+
     func testPublishedLocationRemainsValidAtDatelineAndPoles() {
         let store = ReportStore(reports: [])
 
