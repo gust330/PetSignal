@@ -3,6 +3,20 @@ import XCTest
 
 @MainActor
 final class ReportStoreTests: XCTestCase {
+    func testPublishingRejectsOutOfRangeCoordinates() {
+        let store = ReportStore(reports: [])
+        var invalidLatitude = ReportDraft()
+        invalidLatitude.summary = "Dog near the station"
+        invalidLatitude.location = GeoPoint(latitude: 90.1, longitude: -9.14)
+
+        var invalidLongitude = invalidLatitude
+        invalidLongitude.location = GeoPoint(latitude: 38.72, longitude: -180.1)
+
+        XCTAssertThrowsError(try store.add(invalidLatitude))
+        XCTAssertThrowsError(try store.add(invalidLongitude))
+        XCTAssertTrue(store.reports.isEmpty)
+    }
+
     func testPublishedLocationIsPrivacyRounded() {
         let store = ReportStore(reports: [])
         var draft = ReportDraft()
