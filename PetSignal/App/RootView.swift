@@ -19,10 +19,10 @@ struct RootView: View {
             ReportsScreen {
                 isPresentingNewReport = true
             }
-                .tabItem { Label("Reports", systemImage: "list.bullet.rectangle.portrait") }
+                .tabItem { Label("Community Feed", systemImage: "rectangle.grid.1x2.fill") }
                 .tag(AppTab.reports)
         }
-        .tint(Color.petSignalGreen)
+        .tint(PetSignalTheme.green)
         .sheet(isPresented: $isPresentingNewReport) {
             NewReportView { _ in
                 toastTask?.cancel()
@@ -46,7 +46,7 @@ struct RootView: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 16)
                     .frame(minHeight: 48)
-                    .background(Color.petSignalGreen, in: RoundedRectangle(cornerRadius: 8))
+                    .background(PetSignalTheme.green, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .padding(.top, 8)
                     .accessibilityAddTraits(.isStaticText)
                     .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))

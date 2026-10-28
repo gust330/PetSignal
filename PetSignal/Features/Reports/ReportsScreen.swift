@@ -8,6 +8,7 @@ struct ReportsScreen: View {
     init(onCreateReport: @escaping () -> Void = {}) {
         self.onCreateReport = onCreateReport
     }
+
     @State private var filter = ReportFilter.active
     @State private var searchText = ""
 
@@ -35,17 +36,19 @@ struct ReportsScreen: View {
 
                     if filteredReports.isEmpty {
                         ContentUnavailableView(
-                            searchText.isEmpty ? "No reports here" : "No results",
-                            systemImage: searchText.isEmpty ? "pawprint" : "magnifyingglass",
+                            searchText.isEmpty ? "No Matching Reports" : "No Results Found",
+                            systemImage: searchText.isEmpty ? "pawprint.circle" : "magnifyingglass",
                             description: Text(emptyDescription)
                         )
-                        .frame(minHeight: 280)
+                        .padding(.top, 40)
                     } else {
                         ForEach(filteredReports) { report in
+                            let matchCount = ReportMatcher().candidates(for: report, among: reportStore.reports).count
                             NavigationLink(value: report.id) {
                                 ReportCard(
                                     report: report,
-                                    isSaved: reportStore.savedReportIDs.contains(report.id)
+                                    isSaved: reportStore.savedReportIDs.contains(report.id),
+                                    candidateMatchCount: matchCount
                                 )
                             }
                             .buttonStyle(.plain)
@@ -53,22 +56,24 @@ struct ReportsScreen: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                .padding(.bottom, 24)
+                .padding(.vertical, 12)
             }
-            .background(Color(uiColor: .secondarySystemBackground))
-            .navigationTitle("Community")
+            .background(PetSignalTheme.canvas)
+            .navigationTitle("Community Reports")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: onCreateReport) {
-                        Label("New report", systemImage: "plus")
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(PetSignalTheme.green)
                     }
-                    .accessibilityHint("Opens the report form")
+                    .accessibilityLabel("Create New Report")
                 }
             }
             .navigationDestination(for: UUID.self) { reportID in
                 ReportDetailView(reportID: reportID)
             }
-            .searchable(text: $searchText, prompt: "Name, color, or identifying trait")
+            .searchable(text: $searchText, prompt: "Search breed, collar, trait, or area")
             .safeAreaInset(edge: .top, spacing: 0) {
                 filterBar
             }
@@ -76,19 +81,18 @@ struct ReportsScreen: View {
     }
 
     private var communityHeader: some View {
-        HStack(spacing: 16) {
-            SignalMark(size: 58)
+        HStack(spacing: 14) {
+            SignalMark(size: 52)
             VStack(alignment: .leading, spacing: 3) {
-                Text("Community reports")
-                    .font(.title2.weight(.bold))
-                Text("\(activeReports.count) active \(activeReports.count == 1 ? "report" : "reports")")
-                    .font(.subheadline)
+                Text("Community Reports")
+                    .font(.headline.weight(.bold))
+                Text("\(activeReports.count) active \(activeReports.count == 1 ? "report" : "reports") • Snapped to 300m grid")
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
         }
         .petSignalCard()
-        .padding(.top, 14)
     }
 
     private var filterBar: some View {
@@ -103,34 +107,44 @@ struct ReportsScreen: View {
                         }
                     } label: {
                         Label(option.rawValue, systemImage: option.systemImage)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(filter == option ? .white : .primary)
-                            .padding(.horizontal, 13)
-                            .frame(minHeight: 44)
+                            .font(.caption.weight(.bold))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
                             .background(
-                                filter == option ? Color.petSignalGreen : Color(uiColor: .tertiarySystemFill),
-                                in: RoundedRectangle(cornerRadius: 8)
+                                filter == option ? AnyShapeStyle(PetSignalTheme.green) : AnyShapeStyle(PetSignalTheme.surface),
+                                in: Capsule()
                             )
+                            .overlay(
+                                Capsule().strokeBorder(
+                                    filter == option ? PetSignalTheme.green : PetSignalTheme.border.opacity(0.5),
+                                    lineWidth: 1
+                                )
+                            )
+                            .foregroundStyle(filter == option ? .white : .primary)
                     }
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(filter == option ? .isSelected : [])
-                    .accessibilityHint("Filters the report list")
+                    .accessibilityHint("Filters the community reports list")
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 9)
+            .padding(.vertical, 8)
         }
-        .background(.bar)
+        .background(.regularMaterial)
+        .overlay(alignment: .bottom) {
+            Divider()
+        }
+        .sensoryFeedback(.selection, trigger: filter)
     }
 
     private var emptyDescription: String {
         if !searchText.isEmpty {
-            return "Try a different name or identifying trait."
+            return "Try searching for a different breed, collar color, or trait."
         }
         switch filter {
-        case .saved: return "Bookmark a report to keep it close."
-        case .resolved: return "Resolved reports will appear here."
-        default: return "New community reports will appear here."
+        case .saved: return "Bookmark a report to keep track of its status here."
+        case .resolved: return "Resolved and reunited animal reports will appear here."
+        default: return "Try clearing a filter or checking back soon for new community signals."
         }
     }
 
@@ -146,11 +160,11 @@ struct ReportsScreen: View {
 }
 
 private enum ReportFilter: String, CaseIterable, Identifiable {
-    case active = "Active"
+    case active = "All Active"
     case missing = "Missing"
     case sightings = "Sightings"
-    case saved = "Saved"
-    case resolved = "Resolved"
+    case saved = "Saved ★"
+    case resolved = "Reunited"
 
     var id: Self { self }
 
@@ -160,7 +174,7 @@ private enum ReportFilter: String, CaseIterable, Identifiable {
         case .missing: return "magnifyingglass"
         case .sightings: return "eye.fill"
         case .saved: return "bookmark.fill"
-        case .resolved: return "checkmark.circle.fill"
+        case .resolved: return "checkmark.seal.fill"
         }
     }
 }

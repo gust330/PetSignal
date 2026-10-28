@@ -26,12 +26,17 @@ struct NewReportView: View {
     @State private var photoError: String?
     @State private var publishError: String?
     @State private var isShowingDiscardConfirmation = false
+    @State private var selectedTraits: Set<String> = []
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 38.7223, longitude: -9.1393),
             span: MKCoordinateSpan(latitudeDelta: 0.025, longitudeDelta: 0.025)
         )
     )
+
+    private let quickTraits = [
+        "Wearing Collar", "Friendly", "Skittish / Do Not Chase", "Microchipped", "No Collar", "Needs Vet Care"
+    ]
 
     init(
         followingUpOn: AnimalReport? = nil,
@@ -57,35 +62,35 @@ struct NewReportView: View {
     var body: some View {
         NavigationStack {
             Form {
-                introSection
-
                 if let followingUpOn {
                     Section {
                         HStack(spacing: 12) {
                             Image(systemName: "link.circle.fill")
-                                .font(.title)
-                                .foregroundStyle(Color.petSignalGreen)
+                                .font(.title2)
+                                .foregroundStyle(PetSignalTheme.green)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Following up on \(followingUpOn.displayName)")
-                                    .font(.headline)
+                                    .font(.subheadline.weight(.bold))
                                 Text("This report will be linked on this device.")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                         }
+                        .padding(.vertical, 4)
                     }
                 }
 
-                detailsSection
+                categorySection
                 photoSection
-                descriptionSection
-                locationSection
+                identificationSection
+                approximateAreaSection
+                traitsAndNotesSection
                 validationSection
             }
             .scrollContentBackground(.hidden)
-            .background(Color(uiColor: .secondarySystemBackground))
-            .tint(Color.petSignalGreen)
-            .navigationTitle(draft.kind == .missing ? "Missing pet" : "New sighting")
+            .background(PetSignalTheme.canvas)
+            .tint(PetSignalTheme.green)
+            .navigationTitle(draft.kind == .missing ? "Missing Pet Report" : "Animal Sighting")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -98,14 +103,8 @@ struct NewReportView: View {
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        do {
-                            let reportID = try reportStore.add(draft)
-                            onPublished(reportID)
-                            dismiss()
-                        } catch {
-                            publishError = "This report could not be saved. Check the location and photo, then try again."
-                        }
+                    Button("Post") {
+                        submitReport()
                     }
                     .fontWeight(.bold)
                     .disabled(!canSubmit)
@@ -124,7 +123,7 @@ struct NewReportView: View {
             Button("Discard report", role: .destructive) { dismiss() }
             Button("Keep editing", role: .cancel) {}
         } message: {
-            Text("Your photos and details have not been saved.")
+            Text("Your photos and report details have not been saved.")
         }
         .alert(
             "Unable to save",
@@ -139,56 +138,23 @@ struct NewReportView: View {
         }
     }
 
-    private var introSection: some View {
+    // MARK: - Section 1: Category
+
+    private var categorySection: some View {
         Section {
-            HStack(spacing: 14) {
-                SignalMark(size: 54)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Send a useful signal")
-                        .font(.title3.weight(.bold))
-                    Text("Clear details and an approximate location help people act quickly.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+            Picker("Report Type", selection: $draft.kind) {
+                ForEach(ReportKind.allCases) { kind in
+                    Label(kind.rawValue, systemImage: kind.systemImage).tag(kind)
                 }
             }
-            .padding(.vertical, 4)
-        }
-    }
-
-    private var detailsSection: some View {
-        Section("What happened?") {
-            if dynamicTypeSize.isAccessibilitySize {
-                Picker("Report type", selection: $draft.kind) {
-                    ForEach(ReportKind.allCases) { kind in
-                        Label(kind.rawValue, systemImage: kind.systemImage).tag(kind)
-                    }
-                }
-                .pickerStyle(.inline)
-                .disabled(followingUpOn != nil)
-            } else {
-                Picker("Report type", selection: $draft.kind) {
-                    ForEach(ReportKind.allCases) { kind in
-                        Label(kind.rawValue, systemImage: kind.systemImage).tag(kind)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .disabled(followingUpOn != nil)
-            }
-
-            Picker("Animal", selection: $draft.species) {
-                ForEach(AnimalSpecies.allCases) { species in
-                    Label(species.rawValue, systemImage: species.systemImage).tag(species)
-                }
-            }
+            .pickerStyle(.segmented)
             .disabled(followingUpOn != nil)
-
-            if draft.kind == .missing {
-                TextField("Pet name (optional)", text: $draft.petName)
-                    .textContentType(.name)
-            }
-            DatePicker("Last seen", selection: $draft.lastSeenAt, in: ...Date())
+        } header: {
+            Text("1. Report Category")
         }
     }
+
+    // MARK: - Section 2: Privacy-Safe Photo
 
     private var photoSection: some View {
         Section {
@@ -199,33 +165,34 @@ struct NewReportView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(maxWidth: .infinity)
-                            .frame(height: 210)
+                            .frame(height: 200)
                             .clipped()
                     } else {
-                        VStack(spacing: 10) {
-                            Image(systemName: "camera.fill")
-                                .font(.title)
-                            Text("Add a clear photo")
-                                .font(.headline)
-                            Text("Photos are resized and location metadata is removed.")
-                                .font(.caption)
+                        VStack(spacing: 8) {
+                            Image(systemName: "camera.badge.ellipsis")
+                                .font(.system(size: 34))
+                                .foregroundStyle(PetSignalTheme.green)
+                            Text("Select Animal Photo")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                            Text("EXIF GPS metadata is automatically stripped before upload.")
+                                .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
-                        .frame(maxWidth: .infinity, minHeight: 150)
+                        .frame(maxWidth: .infinity, minHeight: 140)
                     }
 
                     if isProcessingPhoto {
-                        Rectangle().fill(.black.opacity(0.35))
-                        ProgressView("Preparing photo")
+                        Rectangle().fill(.black.opacity(0.4))
+                        ProgressView("Sanitizing photo...")
                             .tint(.white)
                             .foregroundStyle(.white)
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
             .disabled(isProcessingPhoto)
-            .accessibilityLabel(draft.imageData == nil ? "Add a clear photo" : "Change photo")
-            .accessibilityHint("Photos are resized and location metadata is removed")
+            .accessibilityLabel(draft.imageData == nil ? "Select animal photo" : "Change selected photo")
             .onChange(of: selectedPhoto) { _, photo in
                 if photo != nil {
                     hasEditedDraft = true
@@ -242,6 +209,7 @@ struct NewReportView: View {
                     draft.imageData = nil
                 } label: {
                     Label("Remove photo", systemImage: "trash")
+                        .font(.subheadline)
                 }
             }
 
@@ -251,43 +219,70 @@ struct NewReportView: View {
                     .foregroundStyle(.red)
             }
         } header: {
-            Text("Photo")
+            Text("2. Privacy-Safe Photo")
         } footer: {
             Text(draft.kind == .missing
-                 ? "Use a photo that clearly shows the face, coat, and distinctive markings."
-                 : "Photograph from a safe distance. Do not chase the animal for a better picture.")
+                 ? "Select a photo clearly showing distinctive fur markings or collar."
+                 : "Photograph from a safe distance. Never chase an animal for a picture.")
         }
     }
 
-    private var descriptionSection: some View {
-        Section("Description") {
-            TextField(summaryPrompt, text: $draft.summary, axis: .vertical)
-                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2...20 : 2...4)
-            TextField(detailsPrompt, text: $draft.details, axis: .vertical)
-                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3...20 : 3...6)
-        }
-    }
+    // MARK: - Section 3: Animal Identification
 
-    private var locationSection: some View {
+    private var identificationSection: some View {
         Section {
-            TextField("Neighborhood, landmark, or address", text: $locationQuery)
-                .textContentType(.fullStreetAddress)
-                .submitLabel(.search)
-                .onSubmit(searchForLocation)
-                .onChange(of: locationQuery) { _, _ in
-                    locationSearchTask?.cancel()
-                    isSearchingLocation = false
-                    locationWasSelected = false
-                    selectedPlaceName = nil
-                    locationError = nil
+            Picker("Species", selection: $draft.species) {
+                ForEach(AnimalSpecies.allCases) { species in
+                    Label(species.rawValue, systemImage: species.systemImage).tag(species)
                 }
+            }
+            .disabled(followingUpOn != nil)
+
+            if draft.kind == .missing {
+                TextField("Pet Name (e.g., Luna)", text: $draft.petName)
+                    .textContentType(.name)
+            }
+
+            TextField(
+                draft.kind == .missing ? "Short description (e.g., Golden Retriever mix)" : "What did the animal look like?",
+                text: $draft.summary
+            )
+
+            DatePicker("Last Seen", selection: $draft.lastSeenAt, in: ...Date())
+        } header: {
+            Text("3. Animal Identification")
+        }
+    }
+
+    // MARK: - Section 4: Approximate Area
+
+    private var approximateAreaSection: some View {
+        Section {
+            HStack {
+                TextField("Neighborhood, landmark, or street", text: $locationQuery)
+                    .textContentType(.fullStreetAddress)
+                    .submitLabel(.search)
+                    .onSubmit(searchForLocation)
+                    .onChange(of: locationQuery) { _, _ in
+                        locationSearchTask?.cancel()
+                        isSearchingLocation = false
+                        locationWasSelected = false
+                        selectedPlaceName = nil
+                        locationError = nil
+                    }
+
+                if isSearchingLocation {
+                    ProgressView()
+                        .padding(.trailing, 4)
+                }
+            }
 
             Button(action: searchForLocation) {
-                Label(isSearchingLocation ? "Searching" : "Find area", systemImage: "magnifyingglass")
+                Label(isSearchingLocation ? "Searching..." : "Find Neighborhood", systemImage: "magnifyingglass")
+                    .font(.subheadline.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 44)
             }
             .disabled(locationQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSearchingLocation)
-            .accessibilityHint("Finds an approximate map area from typed text")
 
             if let locationError {
                 Label(locationError, systemImage: "exclamationmark.triangle.fill")
@@ -298,14 +293,15 @@ struct NewReportView: View {
             ZStack {
                 Map(position: $cameraPosition) {
                     if locationWasSelected {
-                        MapCircle(center: draft.location.coordinate, radius: 130)
-                            .foregroundStyle(draft.kind.tint.opacity(0.2))
-                        Marker("Approximate area", coordinate: draft.location.coordinate)
+                        MapCircle(center: draft.location.coordinate, radius: 300)
+                            .foregroundStyle(draft.kind.tint.opacity(0.24))
+                            .stroke(draft.kind.tint, lineWidth: 2)
+                        Marker("Approximate Zone", coordinate: draft.location.coordinate)
                             .tint(draft.kind.tint)
                     }
                 }
-                .frame(height: 230)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .frame(height: 200)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .onMapCameraChange(frequency: .continuous) { context in
                     mapCenter = context.region.center
                 }
@@ -313,9 +309,10 @@ struct NewReportView: View {
 
                 Image(systemName: "plus")
                     .font(.headline.weight(.bold))
-                    .foregroundStyle(Color.petSignalDeepGreen)
-                    .padding(7)
-                    .background(Color(uiColor: .systemBackground), in: Circle())
+                    .foregroundStyle(PetSignalTheme.green)
+                    .padding(8)
+                    .background(.ultraThinMaterial, in: Circle())
+                    .overlay(Circle().stroke(PetSignalTheme.border.opacity(0.5), lineWidth: 1))
                     .accessibilityHidden(true)
             }
 
@@ -324,66 +321,114 @@ struct NewReportView: View {
                     latitude: mapCenter.latitude,
                     longitude: mapCenter.longitude
                 )
-                selectedPlaceName = "Map center"
+                selectedPlaceName = "Map Center Area"
                 locationWasSelected = true
             } label: {
                 Label(
-                    locationWasSelected ? "Update to map center" : "Use map center",
+                    locationWasSelected ? "Update to Map Center" : "Set Area to Map Center",
                     systemImage: "scope"
                 )
+                .font(.subheadline.weight(.semibold))
                 .frame(maxWidth: .infinity, minHeight: 44)
             }
             .buttonStyle(.borderedProminent)
-            .accessibilityHint("Selects the approximate area at the center of the map without requiring a map gesture")
 
             if locationWasSelected {
-                LabeledContent("Selected area", value: selectedPlaceName ?? "Map center")
-                LabeledContent("Selected latitude", value: draft.location.latitude.formatted(.number.precision(.fractionLength(4))))
-                LabeledContent("Selected longitude", value: draft.location.longitude.formatted(.number.precision(.fractionLength(4))))
+                LabeledContent("Area Name", value: selectedPlaceName ?? "Selected Area")
+                LabeledContent("Privacy Grid Coordinates", value: draft.location.approximateAreaDescription)
             }
         } header: {
-            Text("Approximate last-seen area")
+            Text("4. Approximate Area (~300m Zone)")
         } footer: {
-            Text(locationWasSelected
-                 ? "The saved coordinate is placed on a roughly 300-metre grid on this device."
-                 : "Required. Search for an area or move the map and use its center. Never pinpoint a private home or your exact location.")
+            Text("Exact coordinates are never published. Public locations are snapped to a roughly 300-meter privacy grid.")
         }
     }
+
+    // MARK: - Section 5: Distinguishing Traits & Notes
+
+    private var traitsAndNotesSection: some View {
+        Section {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(quickTraits, id: \.self) { trait in
+                        let isSelected = selectedTraits.contains(trait)
+                        Button {
+                            if isSelected {
+                                selectedTraits.remove(trait)
+                            } else {
+                                selectedTraits.insert(trait)
+                            }
+                        } label: {
+                            Text(trait)
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(
+                                    isSelected ? AnyShapeStyle(PetSignalTheme.green) : AnyShapeStyle(PetSignalTheme.subtleSurface),
+                                    in: Capsule()
+                                )
+                                .foregroundStyle(isSelected ? .white : .primary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
+            TextField("Collar, temperament, direction of travel, or where they may hide...", text: $draft.details, axis: .vertical)
+                .lineLimit(3...6)
+        } header: {
+            Text("5. Distinguishing Traits & Behavior Notes")
+        }
+    }
+
+    // MARK: - Validation Checklist
 
     @ViewBuilder
     private var validationSection: some View {
         if !canSubmit {
             Section {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Before publishing")
-                        .font(.headline)
+                    Text("Before Publishing")
+                        .font(.subheadline.weight(.bold))
                     validationRow("Add a short description", complete: !draft.summary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     validationRow("Choose an approximate area", complete: locationWasSelected)
                     if isProcessingPhoto {
-                        validationRow("Wait for the photo to finish", complete: false)
+                        validationRow("Wait for photo sanitization to complete", complete: false)
                     }
                 }
+                .padding(.vertical, 2)
             }
         }
     }
 
-    private var summaryPrompt: String {
-        draft.kind == .missing
-            ? "Color, size, and distinctive markings"
-            : "What did the animal look like?"
-    }
-
-    private var detailsPrompt: String {
-        draft.kind == .missing
-            ? "Collar, temperament, medical needs, where they may hide..."
-            : "Condition, direction of travel, collar, and whether still visible..."
-    }
-
     private func validationRow(_ title: String, complete: Bool) -> some View {
         Label(title, systemImage: complete ? "checkmark.circle.fill" : "circle")
-            .font(.subheadline)
-            .foregroundStyle(complete ? Color.petSignalGreen : .secondary)
+            .font(.footnote)
+            .foregroundStyle(complete ? PetSignalTheme.green : .secondary)
             .accessibilityValue(complete ? "Complete" : "Required")
+    }
+
+    // MARK: - Actions
+
+    private func submitReport() {
+        var finalDraft = draft
+        if !selectedTraits.isEmpty {
+            let traitsString = selectedTraits.sorted().joined(separator: ", ")
+            if finalDraft.details.isEmpty {
+                finalDraft.details = "Traits: \(traitsString)."
+            } else {
+                finalDraft.details += " (Traits: \(traitsString))"
+            }
+        }
+
+        do {
+            let reportID = try reportStore.add(finalDraft)
+            onPublished(reportID)
+            dismiss()
+        } catch {
+            publishError = "This report could not be saved. Check the location and photo, then try again."
+        }
     }
 
     private func searchForLocation() {

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PetSignal — iOS 17 Interactive UI/UX Specification Preview</title>
+<style>
+  :root {
+    --canvas: #F4F3EE;
+    --surface: #FFFFFF;
+    --surface-secondary: #EAE8E1;
+    --text-primary: #121614;
+    --text-secondary: #525955;
+    --border: rgba(18, 22, 20, 0.12);
+    --green: #1C4E3D;
+    --amber: #D97706;
+    --amber-bg: rgba(217, 119, 6, 0.14);
+    --teal: #1D7A8A;
+    --teal-bg: rgba(29, 122, 138, 0.14);
+    --safe: #2A705A;
+    --safe-bg: rgba(42, 112, 90, 0.15);
+    --map-bg: #E2E6DF;
+    --map-road: #FFFFFF;
+    --map-park: #D1DEC9;
+  }
+  [data-theme="dark"] {
+    --canvas: #0E1311;
+    --surface: #18201D;
+    --surface-secondary: #222C28;
+    --text-primary: #F5F7F6;
+    --text-secondary: #9BA6A1;
+    --border: rgba(255, 255, 255, 0.12);
+    --green: #389E7B;
+    --amber: #FFB340;
+    --amber-bg: rgba(255, 179, 64, 0.18);
+    --teal: #4DB8C7;
+    --teal-bg: rgba(77, 184, 199, 0.18);
+    --safe: #45B08C;
+    --safe-bg: rgba(69, 176, 140, 0.2);
+    --map-bg: #141D1A;
+    --map-road: #212D29;
+    --map-park: #192922;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif; -webkit-font-smoothing: antialiased; }
+  body { background: #1A1D1C; color: #fff; display: flex; flex-direction: column; align-items: center; padding: 24px; min-height: 100vh; }
+  .toolbar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .toolbar button { background: #2C3330; color: #fff; border: 1px solid #444; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.15s; }
+  .toolbar button.active { background: #389E7B; border-color: #389E7B; color: #000; }
+  .device { width: 393px; height: 852px; background: var(--canvas); color: var(--text-primary); border-radius: 52px; border: 12px solid #2C302E; box-shadow: 0 25px 60px rgba(0,0,0,0.6); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .status-bar { height: 48px; display: flex; justify-content: space-between; align-items: center; padding: 0 28px; font-size: 14px; font-weight: 600; z-index: 30; }
+  .dynamic-island { width: 120px; height: 32px; background: #000; border-radius: 20px; }
+  .screen { flex: 1; display: none; flex-direction: column; position: relative; overflow: hidden; }
+  .screen.active { display: flex; }
+  /* Map Screen */
+  .map-canvas { flex: 1; background: var(--map-bg); position: relative; overflow: hidden; }
+  .park-shape { position: absolute; width: 220px; height: 180px; background: var(--map-park); border-radius: 40px; top: 80px; left: 40px; }
+  .road-h { position: absolute; width: 100%; height: 14px; background: var(--map-road); top: 180px; }
+  .road-v { position: absolute; width: 16px; height: 100%; background: var(--map-road); left: 190px; }
+  .map-top-overlay { position: absolute; top: 8px; left: 12px; right: 12px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
+  .glass-bar { background: color-mix(in srgb, var(--surface) 85%, transparent); backdrop-filter: blur(16px); border-radius: 16px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+  .chip-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chip { background: color-mix(in srgb, var(--surface) 90%, transparent); backdrop-filter: blur(12px); border: 1px solid var(--border); padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; color: var(--text-primary); cursor: pointer; white-space: nowrap; }
+  .chip.selected { background: var(--green); color: #fff; border-color: var(--green); }
+  .privacy-zone { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
+  .privacy-zone:hover { transform: scale(1.04); }
+  .zone-missing { width: 150px; height: 150px; top: 120px; left: 65px; background: var(--amber-bg); border: 2px dashed var(--amber); animation: pulse 2.5s infinite ease-in-out; }
+  .zone-sighting { width: 135px; height: 135px; top: 230px; left: 205px; background: var(--teal-bg); border: 2px solid var(--teal); }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.3); } 50% { box-shadow: 0 0 0 12px rgba(217, 119, 6, 0); } }
+  .zone-badge { padding: 6px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
+  .map-sheet { background: var(--surface); border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 12px 16px 16px; box-shadow: 0 -8px 25px rgba(0,0,0,0.12); border-top: 1px solid var(--border); z-index: 15; }
+  .grabber { width: 38px; height: 5px; background: var(--border); border-radius: 99px; margin: 0 auto 10px; }
+  /* Cards */
+  .report-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; gap: 12px; cursor: pointer; transition: 0.15s; text-align: left; }
+  .report-card:active { transform: scale(0.98); }
+  .pet-thumb { width: 80px; height: 80px; border-radius: 12px; background: var(--surface-secondary); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; position: relative; overflow: hidden; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
+  .badge.missing { background: var(--amber-bg); color: var(--amber); }
+  .badge.sighting { background: var(--teal-bg); color: var(--teal); }
+  .badge.safe { background: var(--safe-bg); color: var(--safe); }
+  .trait-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .trait { font-size: 11px; padding: 3px 8px; border-radius: 6px; background: var(--surface-secondary); color: var(--text-secondary); font-weight: 500; }
+  /* Feed & Detail */
+  .scroll-area { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .safety-banner { background: var(--amber-bg); border-left: 4px solid var(--amber); padding: 12px; border-radius: 10px; display: flex; flex-direction: column; gap: 4px; }
+  .attr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .attr-box { background: var(--surface); border: 1px solid var(--border); padding: 10px; border-radius: 12px; }
+  .match-card { background: var(--surface); border: 1.5px solid var(--teal); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .tab-bar { height: 64px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding-bottom: 8px; z-index: 25; }
+  .tab-btn { background: none; border: none; color: var(--text-secondary); font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+  .tab-btn.active { color: var(--green); }
+  .primary-btn { background: var(--green); color: #fff; border: none; border-radius: 14px; padding: 13px; font-weight: 700; font-size: 15px; cursor: pointer; width: 100%; }
+  .secondary-btn { background: var(--surface-secondary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 14px; padding: 13px; font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="active" onclick="showScreen('map', this)">1. MapScreen (Entry)</button>
+  <button onclick="showScreen('feed', this)">2. ReportsScreen (Feed)</button>
+  <button onclick="showScreen('detail', this)">3. ReportDetailView</button>
+  <button onclick="showScreen('new', this)">4. NewReportView</button>
+  <button onclick="toggleTheme()">☀️ / 🌙 Toggle Sunlight / Dark Mode</button>
+</div>
+
+<div class="device" id="phone" data-theme="light">
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="dynamic-island"></div>
+    <span>5G 100%</span>
+  </div>
+
+  <!-- 1. MAP SCREEN -->
+  <div class="screen active" id="screen-map">
+    <div class="map-canvas">
+      <div class="park-shape"></div>
+      <div class="road-h"></div>
+      <div class="road-v"></div>
+
+      <div class="map-top-overlay">
+        <div class="glass-bar">
+          <div>
+            <div style="font-weight:700; font-size:16px;">PetSignal</div>
+            <div style="font-size:11px; color:var(--text-secondary);">🔒 300m Privacy Grid Active</div>
+          </div>
+          <button onclick="showScreen('new')" style="background:var(--green); color:#fff; border:none; border-radius:99px; padding:8px 14px; font-weight:700; font-size:12px; cursor:pointer;">+ New Report</button>
+        </div>
+        <div class="chip-row">
+          <span class="chip selected">All Active (3)</span>
+          <span class="chip">Missing (2)</span>
+          <span class="chip">Sightings (1)</span>
+          <span class="chip">Dogs</span>
+          <span class="chip">Cats</span>
+        </div>
+      </div>
+
+      <!-- 300m Privacy Circles -->
+      <div class="privacy-zone zone-missing" onclick="selectZone('cooper')">
+        <div class="zone-badge" style="background:var(--amber);">🐾 Missing Dog</div>
+      </div>
+
+      <div class="privacy-zone zone-sighting" onclick="selectZone('tabby')">
+        <div class="zone-badge" style="background:var(--teal);">👁 Cat Sighting</div>
+      </div>
+    </div>
+
+    <div class="map-sheet">
+      <div class="grabber"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;" id="sheet-header">Selected Area Report</span>
+        <span style="font-size:11px; color:var(--text-secondary);">Exact GPS hidden</span>
+      </div>
+      <div class="report-card" onclick="showScreen('detail')">
+        <div class="pet-thumb" id="preview-thumb">🐕</div>
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="badge missing" id="preview-badge">● Missing</span>
+            <span style="font-size:12px; color:var(--text-secondary); font-variant-numeric:tabular-nums;" id="preview-meta">~250m • 18m ago</span>
+          </div>
+          <div style="font-weight:700; font-size:16px; margin-top:4px;" id="preview-title">Cooper — Golden Retriever</div>
+          <div class="trait-pills" id="preview-traits">
+            <span class="trait">Blue nylon collar</span>
+            <span class="trait">Microchipped</span>
+            <span class="trait" style="color:var(--teal); font-weight:700;">1 Possible Match →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. FEED SCREEN -->
+  <div class="screen" id="screen-feed">
+    <div style="padding: 12px 16px 4px;">
+      <div style="font-size:24px; font-weight:800; margin-bottom:8px;">Community Feed</div>
+      <input type="text" placeholder="🔍 Search breed, collar color, or street..." style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:14px; margin-bottom:10px;">
+      <div class="chip-row">
+        <span class="chip selected">Active</span>
+        <span class="chip">Missing</span>
+        <span class="chip">Sightings</span>
+        <span class="chip">Saved ★</span>
+        <span class="chip">Reunited ✓</span>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="report-card" onclick="showScreen('detail')">
+        <div class="pet-thumb">🐕</div>
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between;">
+            <span class="badge missing">● Missing</span>
+            <span style="font-size:12px; color:var(--text-secondary);">~250m • 18m ago</span>
+          </div>
+          <div style="font-weight:700; font-size:16px; margin-top:4px;">Cooper (Golden Retriever)</div>
+          <div style="font-size:13px; color:var(--text-secondary); margin-top:2px;">Near Oak Grove Park (~300m zone)</div>
+          <div class="trait-pills">
+            <span class="trait">Blue collar</span>
+            <span class="trait">Friendly</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-card" onclick="showScreen('detail')">
+        <div class="pet-thumb">🐈</div>
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between;">
+            <span class="badge sighting">◉ Sighting</span>
+            <span style="font-size:12px; color:var(--text-secondary);">~400m • 42m ago</span>
+          </div>
+          <div style="font-weight:700; font-size:16px; margin-top:4px;">Orange Tabby Cat</div>
+          <div style="font-size:13px; color:var(--text-secondary); margin-top:2px;">Hiding under silver car near Bakery</div>
+          <div class="trait-pills">
+            <span class="trait">No collar</span>
+            <span class="trait">White paws</span>
+            <span class="trait">Skittish</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="pet-thumb">🐩</div>
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between;">
+            <span class="badge safe">✓ Reported Reunited</span>
+            <span style="font-size:12px; color:var(--text-secondary);">1.1km • 3h ago</span>
+          </div>
+          <div style="font-weight:700; font-size:16px; margin-top:4px;">Bella — Cream Poodle Mix</div>
+          <div style="font-size:13px; color:var(--safe); font-weight:600; margin-top:4px;">Found safe 400m from home via neighbor sighting!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. REPORT DETAIL VIEW -->
+  <div class="screen" id="screen-detail">
+    <div style="padding: 8px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border);">
+      <button onclick="showScreen('map')" style="background:none; border:none; color:var(--green); font-weight:700; font-size:15px; cursor:pointer;">‹ Back</button>
+      <span style="font-weight:700; font-size:15px;">Report #PS-409</span>
+      <span style="font-size:14px; cursor:pointer;">★ Save</span>
+    </div>
+    <div class="scroll-area">
+      <div style="height:170px; background:var(--surface-secondary); border-radius:16px; display:flex; flex-direction:column; justify-content:space-between; padding:12px; position:relative;">
+        <div style="display:flex; justify-content:space-between;">
+          <span class="badge missing" style="background:#000000aa; color:#FFB340;">● Missing • Active</span>
+          <span class="badge" style="background:#000000aa; color:#fff;">🔒 EXIF Stripped</span>
+        </div>
+        <div style="font-size:54px; text-align:center;">🐕</div>
+        <div style="display:flex; justify-content:space-between; align-items:end;">
+          <span style="font-size:12px; background:#00000088; color:#fff; padding:4px 8px; border-radius:8px;">1 / 3 Photos</span>
+          <span style="font-size:12px; color:var(--text-secondary);">~250m away • 18m ago</span>
+        </div>
+      </div>
+
+      <div class="safety-banner">
+        <div style="font-weight:700; font-size:13px; color:var(--amber);">⚠️ Approach with care</div>
+        <div style="font-size:12px; color:var(--text-primary); line-height:1.4;">Do not chase or call loudly. Frightened pets may bolt into traffic. Crouch low, speak softly, and log a sighting below.</div>
+      </div>
+
+      <div>
+        <div style="font-size:20px; font-weight:800;">Cooper — Golden Retriever</div>
+        <div style="font-size:13px; color:var(--text-secondary); margin-top:4px; line-height:1.45;">Slipped out of his harness near the north entrance of Oak Grove Park when startled by a delivery truck. Very gentle but shy around strangers.</div>
+      </div>
+
+      <div class="attr-grid">
+        <div class="attr-box"><div style="font-size:11px; color:var(--text-secondary);">SPECIES / SEX</div><div style="font-weight:700; font-size:14px;">Dog • Male</div></div>
+        <div class="attr-box"><div style="font-size:11px; color:var(--text-secondary);">SIZE & AGE</div><div style="font-weight:700; font-size:14px;">Large (30kg) • 4 yrs</div></div>
+        <div class="attr-box"><div style="font-size:11px; color:var(--text-secondary);">COLLAR / ID</div><div style="font-weight:700; font-size:14px;">Blue Nylon + Tag</div></div>
+        <div class="attr-box"><div style="font-size:11px; color:var(--text-secondary);">APPROX. AREA</div><div style="font-weight:700; font-size:14px;">Oak Grove (300m)</div></div>
+      </div>
+
+      <div style="font-size:13px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">Suggested Sighting Matches (1)</div>
+      <div class="match-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:700; font-size:14px;">Golden Dog Spotted Moving East</span>
+          <span class="badge sighting">Suggested Match</span>
+        </div>
+        <div style="font-size:12px; color:var(--text-secondary);">Why this is suggested (never a guaranteed identity):</div>
+        <div class="trait-pills">
+          <span class="trait" style="border:1px solid var(--teal);">📍 320m from loss zone</span>
+          <span class="trait" style="border:1px solid var(--teal);">⏱ +11 mins after</span>
+          <span class="trait" style="border:1px solid var(--teal);">🐕 Same size & coat</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:12px 16px; background:var(--surface); border-top:1px solid var(--border); display:flex; gap:8px;">
+      <button class="primary-btn" onclick="showScreen('new')">📍 Log Follow-Up Sighting</button>
+      <button class="secondary-btn" style="width:auto; white-space:nowrap;">✓ Reunited</button>
+    </div>
+  </div>
+
+  <!-- 4. NEW REPORT VIEW -->
+  <div class="screen" id="screen-new">
+    <div style="padding: 12px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border);">
+      <button onclick="showScreen('map')" style="background:none; border:none; color:var(--text-secondary); font-size:15px; cursor:pointer;">Cancel</button>
+      <span style="font-weight:700; font-size:16px;">Create Report</span>
+      <button onclick="showScreen('map')" style="background:none; border:none; color:var(--green); font-weight:700; font-size:15px; cursor:pointer;">Post</button>
+    </div>
+    <div class="scroll-area">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; background:var(--surface-secondary); padding:4px; border-radius:12px;">
+        <button style="padding:10px; border-radius:9px; border:none; background:var(--amber); color:#fff; font-weight:700; font-size:13px;">🔔 Missing Pet</button>
+        <button style="padding:10px; border-radius:9px; border:none; background:transparent; color:var(--text-primary); font-weight:600; font-size:13px;">👁 Animal Sighting</button>
+      </div>
+
+      <div style="border:2px dashed var(--border); border-radius:14px; padding:18px; text-align:center; background:var(--surface);">
+        <div style="font-size:24px;">📷</div>
+        <div style="font-weight:700; font-size:14px; margin-top:4px;">Add Clear Photos (Up to 4)</div>
+        <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">🔒 Privacy by default: EXIF GPS metadata is automatically stripped before upload.</div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">APPROXIMATE PRIVACY AREA (~300M SNAP)</div>
+        <div style="height:120px; background:var(--map-park); border-radius:14px; position:relative; display:flex; align-items:center; justify-content:center; border:1px solid var(--border);">
+          <div style="width:84px; height:84px; border-radius:50%; background:var(--amber-bg); border:2px dashed var(--amber); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; color:var(--amber);">300m Zone</div>
+        </div>
+        <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Pan the map to center the 300m ring. Exact house numbers are never shown publicly.</div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">QUICK TRAITS (TAP TO TAG)</div>
+        <div class="chip-row" style="flex-wrap:wrap;">
+          <span class="chip selected">Wearing Collar</span>
+          <span class="chip selected">Friendly</span>
+          <span class="chip">Skittish / Shy</span>
+          <span class="chip">Microchipped</span>
+          <span class="chip">Injured / Needs Help</span>
+        </div>
+      </div>
+
+      <button class="primary-btn" onclick="showScreen('map')">Publish to Local 300m Grid</button>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showScreen('map', this)"><span>🗺️</span><span>Privacy Map</span></button>
+    <button class="tab-btn" onclick="showScreen('feed', this)"><span>📋</span><span>Community Feed</span></button>
+    <button class="tab-btn" onclick="showScreen('detail', this)"><span>🐾</span><span>Detail View</span></button>
+    <button class="tab-btn" onclick="showScreen('new', this)"><span>➕</span><span>New Report</span></button>
+  </div>
+</div>
+
+<script>
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+  }
+  function toggleTheme() {
+    const el = document.getElementById('phone');
+    el.setAttribute('data-theme', el.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+  }
+  function selectZone(pet) {
+    if (pet === 'tabby') {
+      document.getElementById('preview-thumb').textContent = '🐈';
+      document.getElementById('preview-badge').className = 'badge sighting';
+      document.getElementById('preview-badge').textContent = '◉ Sighting';
+      document.getElementById('preview-meta').textContent = '~400m • 42m ago';
+      document.getElementById('preview-title').textContent = 'Orange Tabby Cat';
+      document.getElementById('preview-traits').innerHTML = '<span class="trait">No collar</span><span class="trait">Skittish</span><span class="trait">Under parked car</span>';
+    } else {
+      document.getElementById('preview-thumb').textContent = '🐕';
+      document.getElementById('preview-badge').className = 'badge missing';
+      document.getElementById('preview-badge').textContent = '● Missing';
+      document.getElementById('preview-meta').textContent = '~250m • 18m ago';
+      document.getElementById('preview-title').textContent = 'Cooper — Golden Retriever';
+      document.getElementById('preview-traits').innerHTML = '<span class="trait">Blue nylon collar</span><span class="trait">Microchipped</span><span class="trait" style="color:var(--teal); font-weight:700;">1 Possible Match →</span>';
+    }
+  }
+</script>
+</body>
+</html>
