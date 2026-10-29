@@ -59,11 +59,12 @@ Losing a pet is distressing and time-critical. Traditional social media posts an
 
 ## Visual Previews
 
-| Map Screen | Report Detail | New Report Flow |
-|:---:|:---:|:---:|
-| ![Map Screen](previews/map_screen.png) | ![Report Detail](previews/report_detail.png) | ![New Report Flow](previews/new_report.png) |
+| Sentinel Map | Community Signals | Report Detail | Mission Control (Tablet) |
+|:---:|:---:|:---:|:---:|
+| ![Map Screen](previews/map_screen.png) | ![Report Detail](previews/report_detail.png) | ![New Report Flow](previews/new_report.png) | ![Tablet Layout](previews/figma_tablet.png) |
 
-> An interactive HTML mockup preview is also available locally in [`petsignal-preview.html`](petsignal-preview.html).
+> 🎨 **Figma Design System & Mockups:** Available in Figma at [`https://www.figma.com/design/l8CFKPboMZSzNmsBmDSUBK`](https://www.figma.com/design/l8CFKPboMZSzNmsBmDSUBK).  
+> 🌐 **Interactive Preview:** Test all mobile screens and responsive tablet mode in [`petsignal-preview.html`](petsignal-preview.html).
 
 ---
 
@@ -73,7 +74,8 @@ Losing a pet is distressing and time-critical. Traditional social media posts an
 - **UI Framework**: Native SwiftUI with modern Observation framework (`@Observable`)
 - **Mapping**: MapKit (`MapReader`, `MapCameraPosition`, `MapContentBuilder`)
 - **Project Generation**: [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`project.yml`)
-- **CI / CD Pipeline**: GitHub Actions running on macOS-14 runners with `xcodebuild test`
+- **CI / CD Pipeline**: GitHub Actions running on `macos-15` runners with `xcodebuild test`
+- **Maturity & State**: Local in-memory sample dataset and offline store prototype; persistent backend services remain a future milestone.
 
 ---
 

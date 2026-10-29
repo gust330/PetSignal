@@ -130,20 +130,20 @@ struct MapScreen: View {
             HStack(spacing: 12) {
                 SignalMark(size: 38)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("PetSignal")
+                    Text("PetSignal Sentinel")
                         .font(.headline.weight(.bold))
-                    Label("300m Privacy Grid Active", systemImage: "lock.shield.fill")
+                    Label("300m Privacy Mesh Active", systemImage: "lock.shield.fill")
                         .font(.caption2.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(PetSignalTheme.green)
                 }
                 Spacer(minLength: 0)
                 Button(action: onCreateReport) {
-                    Label("New report", systemImage: "plus")
+                    Label("Broadcast", systemImage: "plus")
                         .font(.subheadline.weight(.bold))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
                         .background(PetSignalTheme.green, in: Capsule())
-                        .foregroundStyle(.white)
+                        .foregroundStyle(PetSignalTheme.onGreenForeground)
                 }
                 .frame(minHeight: 44)
                 .accessibilityHint("Opens the report creation form")
@@ -208,7 +208,7 @@ struct MapScreen: View {
                         lineWidth: 1
                     )
                 )
-                .foregroundStyle(isSelected ? .white : .primary)
+                .foregroundStyle(isSelected ? PetSignalTheme.onGreenForeground : .primary)
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
@@ -227,10 +227,12 @@ struct MapScreen: View {
             }
             .padding(.horizontal, 4)
 
+            let matchCount = ReportMatcher().candidates(for: report, among: reportStore.reports).count
             NavigationLink(value: report.id) {
                 ReportCard(
                     report: report,
-                    isSaved: reportStore.savedReportIDs.contains(report.id)
+                    isSaved: reportStore.savedReportIDs.contains(report.id),
+                    candidateMatchCount: matchCount
                 )
             }
             .buttonStyle(.plain)

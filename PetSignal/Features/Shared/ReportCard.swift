@@ -60,16 +60,7 @@ struct ReportCard: View {
                 .lineLimit(1)
 
             if candidateMatchCount > 0 {
-                Label("\(candidateMatchCount) Possible Match\(candidateMatchCount == 1 ? "" : "es")", systemImage: "sparkle.magnifyingglass")
-                    .font(.caption2.weight(.bold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(PetSignalTheme.teal.opacity(0.14), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .strokeBorder(PetSignalTheme.teal.opacity(0.35), lineWidth: 1)
-                    )
-                    .foregroundStyle(PetSignalTheme.teal)
+                CandidateMatchBanner(matchCount: candidateMatchCount)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

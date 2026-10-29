@@ -59,7 +59,7 @@ struct ReportsScreen: View {
                 .padding(.vertical, 12)
             }
             .background(PetSignalTheme.canvas)
-            .navigationTitle("Community Reports")
+            .navigationTitle("Community Signals")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: onCreateReport) {
@@ -82,15 +82,25 @@ struct ReportsScreen: View {
 
     private var communityHeader: some View {
         HStack(spacing: 14) {
-            SignalMark(size: 52)
+            SignalMark(size: 48)
             VStack(alignment: .leading, spacing: 3) {
-                Text("Community Reports")
+                Text("Community Signals")
                     .font(.headline.weight(.bold))
-                Text("\(activeReports.count) active \(activeReports.count == 1 ? "report" : "reports") • Snapped to 300m grid")
+                Text("\(activeReports.count) active \(activeReports.count == 1 ? "signal" : "signals") • Lisbon Metro (~300m mesh)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
+            Button(action: onCreateReport) {
+                Label("Signal", systemImage: "plus")
+                    .font(.subheadline.weight(.bold))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(PetSignalTheme.green, in: Capsule())
+                    .foregroundStyle(PetSignalTheme.onGreenForeground)
+            }
+            .frame(minHeight: 44)
+            .accessibilityHint("Opens the report creation form")
         }
         .petSignalCard()
     }
@@ -120,7 +130,7 @@ struct ReportsScreen: View {
                                     lineWidth: 1
                                 )
                             )
-                            .foregroundStyle(filter == option ? .white : .primary)
+                            .foregroundStyle(filter == option ? PetSignalTheme.onGreenForeground : .primary)
                     }
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(filter == option ? .isSelected : [])

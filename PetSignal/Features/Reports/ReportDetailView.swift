@@ -129,7 +129,7 @@ struct ReportDetailView: View {
                             Image(systemName: report.species.systemImage)
                                 .font(.system(size: 64, weight: .semibold))
                                 .foregroundStyle(report.status != .active ? PetSignalTheme.green : report.kind.tint)
-                            Text("EXIF Metadata Stripped • Community Verified")
+                            Text("Location Metadata Removed • Community Verified")
                                 .font(.caption2.weight(.medium))
                                 .foregroundStyle(.secondary)
                         }
@@ -434,7 +434,7 @@ struct ReportDetailView: View {
                 .font(.subheadline.weight(.bold))
                 .frame(maxWidth: .infinity, minHeight: 48)
                 .background(PetSignalTheme.green, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .foregroundStyle(.white)
+                .foregroundStyle(PetSignalTheme.onGreenForeground)
             }
 
             Button {
