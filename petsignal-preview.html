@@ -3,461 +3,1270 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PetSignal — Modern Responsive UI/UX Specification & Interactive Preview</title>
+<title>PetSignal — Official UI/UX Design System & Interactive Preview</title>
 <style>
   :root {
-    --canvas: #F6F5F1;
-    --surface: #FFFFFF;
-    --surface-secondary: #EDF0EB;
-    --text-primary: #121A16;
-    --text-secondary: #58635D;
-    --border: rgba(18, 26, 22, 0.14);
-    --border-strong: rgba(18, 26, 22, 0.28);
-    --green: #0D3328;
-    --sage: #2DA078;
-    --amber: #C2410C;
-    --amber-bg: rgba(194, 65, 12, 0.12);
-    --teal: #0E7490;
-    --teal-bg: rgba(14, 116, 144, 0.12);
-    --safe: #166534;
-    --safe-bg: rgba(22, 101, 52, 0.14);
-    --map-bg: #E7ECE7;
-    --map-water: #C3DCEB;
-    --map-park: #D2E4D2;
+    --canvas: #F1F5F9;
+    --hud: rgba(255, 255, 255, 0.85);
+    --card: #FFFFFF;
+    --card-subtle: #F8FAFC;
+    --border: rgba(226, 232, 240, 0.85);
+    --border-strong: rgba(203, 213, 225, 0.9);
+    --hud-border: rgba(226, 232, 240, 0.8);
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --shadow-card: 0 12px 32px -8px rgba(15, 23, 42, 0.08);
+
+    /* Official Brand & Semantic Palette */
+    --coral: #FF5A36;
+    --coral-dark: #FF2E54;
+    --coral-gradient: linear-gradient(135deg, #FF5A36 0%, #FF2E54 100%);
+    --amber: #F59E0B;
+    --emerald: #10B981;
+    --indigo: #6366F1;
+
+    /* Radar Map Styling */
+    --map-bg: #E2E8F0;
+    --map-water: #CBD5E1;
+    --map-park: #D1FAE5;
     --map-road: #FFFFFF;
+    --map-grid: rgba(148, 163, 184, 0.25);
   }
+
   [data-theme="dark"] {
-    --canvas: #0C110E;
-    --surface: #141B18;
-    --surface-secondary: #1E2824;
-    --text-primary: #F5F7F5;
-    --text-secondary: #9AA69F;
-    --border: rgba(255, 255, 255, 0.12);
-    --border-strong: rgba(255, 255, 255, 0.26);
-    --green: #38A882;
-    --sage: #4ADE80;
-    --amber: #FB923C;
-    --amber-bg: rgba(251, 146, 60, 0.18);
-    --teal: #38BDF8;
-    --teal-bg: rgba(56, 189, 248, 0.18);
-    --safe: #4ADE80;
-    --safe-bg: rgba(74, 222, 128, 0.18);
-    --map-bg: #111A16;
-    --map-water: #182C38;
-    --map-park: #162B20;
-    --map-road: #212D28;
+    --canvas: #090D16;
+    --hud: rgba(15, 23, 42, 0.78);
+    --card: #131B2E;
+    --card-subtle: #1A233A;
+    --border: rgba(30, 41, 59, 0.8);
+    --border-strong: rgba(51, 65, 85, 0.8);
+    --hud-border: rgba(255, 255, 255, 0.10);
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --shadow-card: 0 16px 36px -10px rgba(0, 0, 0, 0.5);
+
+    /* Radar Map Dark Styling */
+    --map-bg: #0C1220;
+    --map-water: #141E34;
+    --map-park: #102422;
+    --map-road: #1E293B;
+    --map-grid: rgba(51, 65, 85, 0.35);
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif; -webkit-font-smoothing: antialiased; }
-  body { background: #131715; color: #fff; display: flex; flex-direction: column; align-items: center; padding: 24px; min-height: 100vh; }
-  .toolbar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; justify-content: center; }
-  .toolbar button { background: #242B28; color: #F5F7F5; border: 1px solid #3E4743; padding: 8px 16px; border-radius: 99px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.15s; }
-  .toolbar button:hover { background: #2E3834; }
-  .toolbar button.active { background: #2DA078; border-color: #2DA078; color: #0C110E; font-weight: 700; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Inter", "SF Pro Display", sans-serif; -webkit-font-smoothing: antialiased; }
+  .font-mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
+
+  body {
+    background: #060910;
+    color: #F8FAFC;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  /* Header Bar */
+  .brand-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1100px;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    background: rgba(19, 27, 46, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+  }
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-logo svg { width: 36px; height: 36px; }
+  .brand-title { font-size: 17px; font-weight: 800; tracking: -0.02em; }
+  .brand-tag { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 99px; background: rgba(255, 90, 54, 0.15); color: var(--coral); border: 1px solid rgba(255, 90, 54, 0.3); font-family: monospace; }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .toolbar button {
+    background: #131B2E;
+    color: #94A3B8;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 99px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    transition: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .toolbar button:hover { background: #1A233A; color: #F8FAFC; }
+  .toolbar button.active {
+    background: var(--coral-gradient);
+    border-color: transparent;
+    color: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(255, 90, 54, 0.4);
+  }
 
   /* Device frame */
   .device-container { display: flex; justify-content: center; width: 100%; }
-  .device { width: 393px; height: 852px; background: var(--canvas); color: var(--text-primary); border-radius: 50px; border: 10px solid #282F2C; box-shadow: 0 25px 65px rgba(0,0,0,0.65); position: relative; overflow: hidden; display: flex; flex-direction: column; transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s; }
-  .device.tablet { width: 1024px; height: 720px; border-radius: 36px; border-width: 8px; }
+  .device {
+    width: 393px;
+    height: 852px;
+    background: var(--canvas);
+    color: var(--text-primary);
+    border-radius: 50px;
+    border: 10px solid #1E293B;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .device.tablet {
+    width: 1024px;
+    height: 720px;
+    border-radius: 36px;
+    border-width: 8px;
+  }
 
-  .status-bar { height: 46px; display: flex; justify-content: space-between; align-items: center; padding: 0 28px; font-size: 14px; font-weight: 600; z-index: 30; }
-  .dynamic-island { width: 120px; height: 30px; background: #000; border-radius: 20px; }
-  .screen { flex: 1; display: none; flex-direction: column; position: relative; overflow: hidden; }
+  .status-bar {
+    height: 46px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 28px;
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 30;
+    background: transparent;
+  }
+  .dynamic-island {
+    width: 120px;
+    height: 30px;
+    background: #000;
+    border-radius: 20px;
+  }
+  .screen {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
   .screen.active { display: flex; }
 
-  /* 1. Map Screen */
-  .map-canvas { flex: 1; background: var(--map-bg); position: relative; overflow: hidden; }
-  .map-water { position: absolute; width: 100%; height: 110px; background: var(--map-water); top: 0; border-bottom: 2px solid var(--border); }
-  .water-label { position: absolute; top: 12px; left: 16px; font-size: 11px; font-weight: 600; color: var(--teal); }
-  .park-shape { position: absolute; width: 230px; height: 190px; background: var(--map-park); border-radius: 44px; top: 130px; left: 30px; }
-  .road-h1 { position: absolute; width: 100%; height: 16px; background: var(--map-road); top: 220px; }
-  .road-v1 { position: absolute; width: 16px; height: 100%; background: var(--map-road); left: 180px; }
-
-  .map-top-overlay { position: absolute; top: 6px; left: 12px; right: 12px; z-index: 15; display: flex; flex-direction: column; gap: 8px; }
-  .glass-header { background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-radius: 18px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-  .brand-badge { width: 38px; height: 38px; border-radius: 10px; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-  
-  .filter-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
-  .chip { background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(12px); border: 1px solid var(--border); padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; color: var(--text-primary); cursor: pointer; white-space: nowrap; transition: 0.12s; }
-  .chip:hover { border-color: var(--sage); }
-  .chip.selected { background: var(--green); color: #fff; border-color: var(--green); font-weight: 700; }
-
-  .privacy-zone { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
-  .privacy-zone:hover { transform: scale(1.04); }
-  .zone-missing { width: 160px; height: 160px; top: 140px; left: 60px; background: var(--amber-bg); border: 2px dashed var(--amber); animation: pulseRadar 3s infinite ease-in-out; }
-  .zone-sighting { width: 140px; height: 140px; top: 270px; left: 195px; background: var(--teal-bg); border: 2px solid var(--teal); }
-  @keyframes pulseRadar {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(194, 65, 12, 0.35); }
-    50% { box-shadow: 0 0 0 14px rgba(194, 65, 12, 0); }
+  /* Glass HUD Component */
+  .glass-hud {
+    background: var(--hud);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--hud-border);
+    border-radius: 24px;
   }
-  .zone-pin { padding: 6px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 
-  .map-dock { background: var(--surface); border-top-left-radius: 26px; border-top-right-radius: 26px; padding: 12px 16px 18px; box-shadow: 0 -8px 24px rgba(0,0,0,0.12); border-top: 1px solid var(--border); z-index: 20; }
-  .grab-bar { width: 38px; height: 4px; background: var(--border-strong); border-radius: 99px; margin: 0 auto 10px; }
+  /* 1. Radar Map Screen */
+  .radar-map-canvas {
+    flex: 1;
+    background: var(--map-bg);
+    position: relative;
+    overflow: hidden;
+    background-image:
+      linear-gradient(var(--map-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--map-grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .map-water-feature {
+    position: absolute;
+    width: 100%;
+    height: 120px;
+    background: var(--map-water);
+    top: 0;
+    border-bottom: 2px solid var(--border);
+  }
+  .water-label {
+    position: absolute;
+    top: 14px;
+    left: 18px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--indigo);
+    font-family: "JetBrains Mono", monospace;
+  }
+  .park-feature {
+    position: absolute;
+    width: 250px;
+    height: 200px;
+    background: var(--map-park);
+    border-radius: 44px;
+    top: 150px;
+    left: 20px;
+    opacity: 0.8;
+  }
+  .road-feature-h {
+    position: absolute;
+    width: 100%;
+    height: 18px;
+    background: var(--map-road);
+    top: 240px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .road-feature-v {
+    position: absolute;
+    width: 18px;
+    height: 100%;
+    background: var(--map-road);
+    left: 190px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
 
-  /* Cards */
-  .report-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; gap: 12px; cursor: pointer; transition: 0.15s; text-align: left; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-  .report-card:active { transform: scale(0.985); }
-  .pet-thumb { width: 84px; height: 84px; border-radius: 14px; background: var(--surface-secondary); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 34px; flex-shrink: 0; position: relative; overflow: hidden; }
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 99px; font-size: 10px; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; }
-  .badge.missing { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber); }
-  .badge.sighting { background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal); }
-  .badge.safe { background: var(--safe-bg); color: var(--safe); border: 1px solid var(--safe); }
-  
-  .match-banner { background: var(--teal-bg); border: 1px solid var(--teal); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
-  .match-banner .title { font-weight: 700; font-size: 11px; color: var(--teal); }
-  .match-banner .sub { font-size: 10px; color: var(--text-secondary); margin-top: 1px; }
+  /* Radar Pulse Circles */
+  .radar-circle {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .radar-circle:hover { transform: scale(1.05); }
 
-  /* Feed & Detail Views */
-  .scroll-area { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
-  .safety-box { background: var(--amber-bg); border: 1px solid var(--amber); padding: 12px 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 4px; }
-  .matrix-grid { background: var(--surface); border: 1.5px solid var(--teal); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-  .matrix-row { background: var(--surface-secondary); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; font-size: 12px; }
-  .matrix-row .label { font-weight: 700; color: var(--sage); }
+  .radar-circle.lost {
+    background: rgba(255, 90, 54, 0.16);
+    border: 2px dashed var(--coral);
+    animation: radarPulseAnim 3s infinite ease-in-out;
+  }
+  .radar-circle.sighting {
+    background: rgba(245, 158, 11, 0.16);
+    border: 2px solid var(--amber);
+  }
+  .radar-circle.found {
+    background: rgba(16, 185, 129, 0.16);
+    border: 2px solid var(--emerald);
+  }
+  .radar-circle.haven {
+    background: rgba(99, 102, 241, 0.16);
+    border: 2px solid var(--indigo);
+  }
 
-  .tab-bar { height: 64px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding-bottom: 6px; z-index: 25; }
-  .tab-btn { background: none; border: none; color: var(--text-secondary); font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; flex: 1; }
-  .tab-btn.active { color: var(--green); font-weight: 700; }
+  @keyframes radarPulseAnim {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 90, 54, 0.45); }
+    50% { box-shadow: 0 0 0 16px rgba(255, 90, 54, 0.0); }
+  }
 
-  .primary-btn { background: var(--green); color: #fff; border: none; border-radius: 14px; padding: 13px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; transition: 0.15s; }
-  .primary-btn:hover { opacity: 0.92; }
+  /* 3. PetPinMarker Component */
+  .pet-pin-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+  }
+  .pet-pin-avatar-ring {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 3px solid var(--coral);
+    box-shadow: 0 4px 14px rgba(255, 90, 54, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pet-pin-marker:hover .pet-pin-avatar-ring {
+    transform: scale(1.12);
+  }
+  .pet-pin-marker.sighting .pet-pin-avatar-ring { border-color: var(--amber); box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); }
+  .pet-pin-marker.found .pet-pin-avatar-ring { border-color: var(--emerald); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); }
+  .pet-pin-marker.haven .pet-pin-avatar-ring { border-color: var(--indigo); box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
 
-  /* 5. Tablet Responsive View */
-  .tablet-grid { display: flex; height: 100%; }
-  .col-feed { width: 340px; border-right: 1px solid var(--border); display: flex; flex-direction: column; background: var(--surface); }
-  .col-map { flex: 1; display: flex; flex-direction: column; position: relative; background: var(--map-bg); }
-  .col-inspector { width: 310px; border-left: 1px solid var(--border); display: flex; flex-direction: column; background: var(--surface); padding: 16px; gap: 12px; overflow-y: auto; }
+  .pointer-triangle {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 7px solid var(--coral);
+    margin-top: -1px;
+  }
+  .pet-pin-marker.sighting .pointer-triangle { border-top-color: var(--amber); }
+  .pet-pin-marker.found .pointer-triangle { border-top-color: var(--emerald); }
+  .pet-pin-marker.haven .pointer-triangle { border-top-color: var(--indigo); }
+
+  /* Map Floating Header */
+  .map-floating-header {
+    position: absolute;
+    top: 8px;
+    left: 14px;
+    right: 14px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .header-main-row {
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .hud-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hud-brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: var(--coral-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(255, 90, 54, 0.35);
+  }
+  .broadcast-btn {
+    background: var(--coral-gradient);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 99px;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(255, 90, 54, 0.35);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.15s;
+  }
+  .broadcast-btn:hover { transform: scale(1.03); }
+
+  /* Filter Pills */
+  .filter-pills-row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .pill-chip {
+    background: var(--hud);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .pill-chip:hover { border-color: var(--coral); }
+  .pill-chip.selected {
+    background: var(--coral);
+    color: #FFFFFF;
+    border-color: var(--coral);
+    box-shadow: 0 2px 10px rgba(255, 90, 54, 0.35);
+  }
+
+  /* Bottom Floating Dock (Sheet radius 28px) */
+  .map-dock-sheet {
+    background: var(--hud);
+    backdrop-filter: blur(25px);
+    border-top: 1px solid var(--hud-border);
+    border-radius: 28px 28px 0 0;
+    padding: 12px 16px 18px;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.12);
+    z-index: 20;
+  }
+  .dock-grab-handle {
+    width: 38px;
+    height: 4px;
+    background: var(--border-strong);
+    border-radius: 99px;
+    margin: 0 auto 10px;
+  }
+
+  /* 5. SignalCard Component (Card radius 24px) */
+  .signal-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 14px;
+    display: flex;
+    gap: 14px;
+    cursor: pointer;
+    transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: var(--shadow-card);
+    text-align: left;
+    position: relative;
+  }
+  .signal-card:hover {
+    border-color: var(--coral);
+    box-shadow: 0 12px 30px -6px rgba(255, 90, 54, 0.25);
+    transform: translateY(-2px);
+  }
+  .signal-card.selected {
+    border-color: var(--coral);
+    box-shadow: 0 0 0 2px var(--coral), 0 14px 32px -6px rgba(255, 90, 54, 0.35);
+  }
+  .card-avatar-box {
+    width: 84px;
+    height: 84px;
+    border-radius: 16px;
+    background: var(--card-subtle);
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-avatar-box svg {
+    width: 72px;
+    height: 72px;
+  }
+  .card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+  .card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* 1. SignalStatusBadge Component */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 99px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+  }
+  .status-badge.lost {
+    background: rgba(255, 90, 54, 0.15);
+    color: var(--coral);
+    border: 1px solid rgba(255, 90, 54, 0.35);
+  }
+  .status-badge.sighting {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--amber);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+  }
+  .status-badge.found {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--emerald);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+  }
+  .status-badge.haven {
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--indigo);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+  }
+  .pulsing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    position: relative;
+  }
+  .pulsing-dot::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    animation: pingDot 1.4s infinite cubic-bezier(0, 0, 0.2, 1);
+  }
+  @keyframes pingDot {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+  .status-badge.lost .pulsing-dot { background: var(--coral); }
+  .status-badge.sighting .pulsing-dot { background: var(--amber); }
+  .status-badge.found .pulsing-dot { background: var(--emerald); }
+  .status-badge.haven .pulsing-dot { background: var(--indigo); }
+
+  /* 2. AIMatchConfidencePill Component */
+  .ai-match-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 99px;
+    font-size: 10px;
+    font-weight: 800;
+    font-family: "JetBrains Mono", monospace;
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.12) 0%, rgba(255, 90, 54, 0.10) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: var(--indigo);
+  }
+  .ai-match-pill span.sparkle { color: var(--coral); }
+
+  /* Monospace Telemetry Details */
+  .telemetry-meta {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Dual Action Footer */
+  .card-footer-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+  }
+  .action-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 99px;
+    background: var(--card-subtle);
+    color: var(--text-secondary);
+  }
+  .details-link {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--coral);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+  }
+
+  /* Phone Bottom Tab Bar */
+  .phone-nav-bar {
+    height: 72px;
+    background: var(--hud);
+    backdrop-filter: blur(25px);
+    border-top: 1px solid var(--hud-border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 16px 12px;
+    z-index: 30;
+  }
+  .nav-btn {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.15s;
+    padding: 6px 16px;
+    border-radius: 16px;
+  }
+  .nav-btn.active {
+    color: var(--coral);
+    background: rgba(255, 90, 54, 0.12);
+  }
+
+  /* 2. Feed Screen */
+  .feed-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .bento-header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* 3. Detail Screen */
+  .detail-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .hero-bento {
+    background: var(--card-subtle);
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-bento svg { width: 140px; height: 140px; }
+  .bento-grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .bento-cell {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: var(--shadow-card);
+  }
+  .bento-cell-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+  }
+  .bento-cell-val {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-top: 4px;
+  }
+
+  /* Tablet 3-Column Mission Control Layout */
+  .tablet-layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 320px 1fr 340px;
+    overflow: hidden;
+  }
+  .tablet-sidebar {
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 16px;
+    gap: 12px;
+  }
+  .tablet-radar-col {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .tablet-inspector-col {
+    background: var(--card);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+    gap: 16px;
+  }
+
+  /* 4. Design System Tokens Screen */
+  .tokens-screen {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .token-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 18px;
+    box-shadow: var(--shadow-card);
+  }
+  .color-swatches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .color-swatch-card {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    background: var(--card-subtle);
+  }
+  .swatch-color-box { height: 50px; width: 100%; }
+  .swatch-info { padding: 8px 10px; font-size: 11px; }
+  .swatch-info b { display: block; font-size: 12px; margin-bottom: 2px; }
 </style>
 </head>
 <body>
 
-<div class="toolbar">
-  <button class="active" onclick="switchView('phone', 'map', this)">1. Sentinel Map</button>
-  <button onclick="switchView('phone', 'feed', this)">2. Community Signals</button>
-  <button onclick="switchView('phone', 'detail', this)">3. Detail & Match Engine</button>
-  <button onclick="switchView('phone', 'new', this)">4. New Report</button>
-  <button onclick="switchView('tablet', 'tablet-view', this)">5. Tablet Mission Control (1024px)</button>
-  <button onclick="toggleTheme()">☀️ / 🌙 Sunlight Contrast</button>
+<!-- Header Navigation Bar -->
+<div class="brand-bar">
+  <div class="brand-logo">
+    <svg viewBox="0 0 100 100" fill="none">
+      <rect width="100" height="100" rx="28" fill="#FF5A36" />
+      <circle cx="50" cy="50" r="32" stroke="white" stroke-width="4" stroke-opacity="0.4" />
+      <circle cx="50" cy="50" r="22" stroke="white" stroke-width="4" stroke-opacity="0.7" />
+      <circle cx="50" cy="50" r="10" fill="white" />
+    </svg>
+    <div>
+      <div class="brand-title">PetSignal Official Design System & Radar</div>
+      <div style="font-size: 11px; color: #94A3B8;">Apple Find My + Airbnb + Tactical Radar Clarity</div>
+    </div>
+  </div>
+  <div style="display: flex; gap: 8px; align-items: center;">
+    <span class="brand-tag">v2.0 OFFICIAL SPEC</span>
+    <button onclick="toggleTheme()" class="toolbar-btn" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #FFF; padding: 6px 14px; border-radius: 99px; cursor: pointer; font-size: 12px; font-weight: 700;">🌗 Toggle Theme</button>
+  </div>
 </div>
 
+<!-- Toolbar Device & View Controls -->
+<div class="toolbar">
+  <button id="btn-phone-map" class="active" onclick="switchView('phone', 'map', this)">📱 Radar Map</button>
+  <button id="btn-phone-feed" onclick="switchView('phone', 'feed', this)">📡 Community Feed</button>
+  <button id="btn-phone-detail" onclick="switchView('phone', 'detail', this)">🐾 Intel & AI Match</button>
+  <button id="btn-phone-tokens" onclick="switchView('phone', 'tokens', this)">🎨 Design System Tokens</button>
+  <button id="btn-tablet-mission" onclick="switchView('tablet', 'mission', this)">🖥️ Tablet Mission Control (1024x768)</button>
+</div>
+
+<!-- Device Shell -->
 <div class="device-container">
-  <div class="device" id="device" data-theme="light">
-    
-    <!-- Status Bar (Phone only) -->
+  <div class="device" id="device" data-theme="dark">
+
+    <!-- iOS Dynamic Island & Status Bar -->
     <div class="status-bar" id="phone-status">
-      <span>9:41</span>
+      <span class="font-mono">9:41</span>
       <div class="dynamic-island"></div>
-      <span>5G 100%</span>
+      <span class="font-mono">5G 100%</span>
     </div>
 
-    <!-- 1. MAP SCREEN -->
+    <!-- SCREEN 1: Radar Map Screen -->
     <div class="screen active" id="screen-map">
-      <div class="map-canvas">
-        <div class="map-water"><span class="water-label">🌊 Tagus River Estuary</span></div>
-        <div class="park-shape"></div>
-        <div class="road-h1"></div>
-        <div class="road-v1"></div>
+      <div class="radar-map-canvas">
+        <div class="map-water-feature"><span class="water-label">TAGUS ESTUARY • ~300M RADAR MESH</span></div>
+        <div class="park-feature"></div>
+        <div class="road-feature-h"></div>
+        <div class="road-feature-v"></div>
 
-        <div class="map-top-overlay">
-          <div class="glass-header">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div class="brand-badge">🐾</div>
-              <div>
-                <div style="font-weight:800; font-size:15px;">PetSignal Sentinel</div>
-                <div style="font-size:11px; color:var(--sage); font-weight:600;">300m Privacy Mesh • 6 Local Sentinels</div>
-              </div>
+        <!-- Radar Pulse Rings & Annotations -->
+        <!-- 1. Barnaby (Lost) -->
+        <div class="radar-circle lost" style="width: 140px; height: 140px; top: 130px; left: 40px;" onclick="selectSignal('SIG-409')">
+          <div class="pet-pin-marker" style="margin-top: -24px;">
+            <div class="pet-pin-avatar-ring">
+              <!-- Golden SVG -->
+              <svg viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="48" fill="#F59E0B" />
+                <ellipse cx="50" cy="54" rx="26" ry="25" fill="#FEF3C7" />
+                <circle cx="39" cy="48" r="4" fill="#0F172A" />
+                <circle cx="61" cy="48" r="4" fill="#0F172A" />
+                <ellipse cx="50" cy="58" rx="6" ry="4.5" fill="#0F172A" />
+                <path d="M46 66 Q50 72 54 66 Z" fill="#FF5A36" />
+              </svg>
             </div>
-            <button onclick="switchView('phone', 'new')" style="background:var(--amber); color:#fff; border:none; border-radius:99px; padding:7px 12px; font-weight:700; font-size:12px; cursor:pointer;">+ Broadcast</button>
-          </div>
-
-          <div class="filter-bar">
-            <span class="chip selected">All Active (4)</span>
-            <span class="chip">⚠️ Missing (2)</span>
-            <span class="chip">👁️ Sightings (2)</span>
-            <span class="chip">🐕 Dogs</span>
-            <span class="chip">🐈 Cats</span>
+            <div class="pointer-triangle"></div>
           </div>
         </div>
 
-        <!-- 300m Privacy Zones -->
-        <div class="privacy-zone zone-missing" onclick="selectIncident('bobi')">
-          <div class="zone-pin" style="background:var(--amber);">⚠️ Bobi (~300m)</div>
-        </div>
-
-        <div class="privacy-zone zone-sighting" onclick="selectIncident('luna')">
-          <div class="zone-pin" style="background:var(--teal);">👁️ Sighting S-402</div>
-        </div>
-      </div>
-
-      <!-- Snapped Bottom Incident Dock -->
-      <div class="map-dock">
-        <div class="grab-bar"></div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <span style="font-size:11px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">Selected Sentinel Incident</span>
-          <span style="font-size:11px; color:var(--sage); font-weight:700;">Exact GPS Hidden (300m Grid)</span>
-        </div>
-
-        <div class="report-card" onclick="switchView('phone', 'detail')">
-          <div class="pet-thumb" id="dock-thumb">🐕</div>
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="badge missing" id="dock-badge">MISSING</span>
-              <span style="font-size:12px; color:var(--text-secondary); font-variant-numeric:tabular-nums;" id="dock-time">45m ago • ~300m away</span>
+        <!-- 2. Mochi (Sighting) -->
+        <div class="radar-circle sighting" style="width: 100px; height: 100px; top: 270px; left: 210px;" onclick="selectSignal('SIG-412')">
+          <div class="pet-pin-marker sighting" style="margin-top: -24px;">
+            <div class="pet-pin-avatar-ring">
+              <!-- Calico SVG -->
+              <svg viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="48" fill="#EA580C" />
+                <polygon points="24,42 20,20 40,30" fill="#EA580C" />
+                <polygon points="76,42 80,20 60,30" fill="#1E293B" />
+                <ellipse cx="50" cy="54" rx="26" ry="23" fill="#FFFBEB" />
+                <circle cx="39" cy="52" r="4" fill="#059669" />
+                <circle cx="61" cy="52" r="4" fill="#059669" />
+              </svg>
             </div>
-            <div style="font-weight:800; font-size:16px; margin-top:4px;" id="dock-title">Bobi — Golden Retriever</div>
-            <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;" id="dock-desc">Cream/yellow coat, red nylon harness. Friendly.</div>
-            
-            <div class="match-banner" id="dock-match">
+            <div class="pointer-triangle"></div>
+          </div>
+        </div>
+
+        <!-- 3. Pixel (Safe/Found) -->
+        <div class="radar-circle found" style="width: 80px; height: 80px; top: 350px; left: 80px;" onclick="selectSignal('SIG-401')">
+          <div class="pet-pin-marker found" style="margin-top: -24px;">
+            <div class="pet-pin-avatar-ring">
+              <!-- Tuxedo SVG -->
+              <svg viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="48" fill="#1E293B" />
+                <polygon points="50,48 33,73 67,73" fill="#F8FAFC" />
+                <circle cx="39" cy="50" r="4" fill="#FACC15" />
+                <circle cx="61" cy="50" r="4" fill="#FACC15" />
+              </svg>
+            </div>
+            <div class="pointer-triangle"></div>
+          </div>
+        </div>
+
+        <!-- Floating GlassNavigationHUD Top Header -->
+        <div class="map-floating-header">
+          <div class="glass-hud header-main-row">
+            <div class="hud-brand">
+              <div class="hud-brand-icon">🐾</div>
               <div>
-                <div class="title">⚡ 2 Candidate Sighting Matches</div>
-                <div class="sub">Within ~300m cell • 94% algorithm confidence</div>
+                <div style="font-weight: 800; font-size: 13px; letter-spacing: -0.01em;">PETSIGNAL RADAR</div>
+                <div class="font-mono" style="font-size: 10px; color: var(--text-secondary);">4 ACTIVE SIGNALS • ~300M MESH</div>
               </div>
-              <span style="font-size:12px; font-weight:800; color:var(--teal);">View →</span>
             </div>
+            <button class="broadcast-btn" onclick="alert('Opening Broadcast intake form...')">+ Signal</button>
+          </div>
+
+          <div class="filter-pills-row">
+            <div class="pill-chip selected">ALL (4)</div>
+            <div class="pill-chip">LOST SIGNALS</div>
+            <div class="pill-chip">AI SIGHTINGS</div>
+            <div class="pill-chip">SAFE HAVENS</div>
+          </div>
+        </div>
+
+        <!-- Selected Signal Floating Dock -->
+        <div class="map-dock-sheet" style="position: absolute; bottom: 0; left: 0; right: 0;">
+          <div class="dock-grab-handle"></div>
+          <div id="dock-card-target">
+            <!-- Injected by JavaScript -->
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 2. COMMUNITY SIGNALS FEED -->
+    <!-- SCREEN 2: Community Signals Feed -->
     <div class="screen" id="screen-feed">
-      <div style="padding:10px 16px 6px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <div>
-            <div style="font-size:24px; font-weight:800;">Community Signals</div>
-            <div style="font-size:12px; color:var(--text-secondary);">Live local sentinel alerts • Lisbon Metro Grid</div>
-          </div>
-          <button onclick="switchView('phone', 'new')" style="background:var(--sage); color:#fff; border:none; border-radius:99px; padding:7px 14px; font-weight:700; font-size:12px; cursor:pointer;">+ Report</button>
-        </div>
-        <input type="text" placeholder="🔍 Search breed, collar color, or area..." style="width:100%; padding:9px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px; margin-bottom:8px;">
-        <div class="filter-bar">
-          <span class="chip selected">All Active (4)</span>
-          <span class="chip">⚠️ Missing (2)</span>
-          <span class="chip">👁️ Sightings (2)</span>
-          <span class="chip">🔖 Saved (1)</span>
-        </div>
-      </div>
-
-      <div class="scroll-area">
-        <!-- Card 1 -->
-        <div class="report-card" onclick="switchView('phone', 'detail')">
-          <div class="pet-thumb">🐕</div>
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between;">
-              <span class="badge missing">MISSING</span>
-              <span style="font-size:12px; color:var(--text-secondary);">45m ago • Alameda</span>
-            </div>
-            <div style="font-weight:800; font-size:16px; margin-top:4px;">Bobi (Golden Retriever)</div>
-            <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Cream/yellow coat, red nylon harness. Friendly.</div>
-            <div class="match-banner">
-              <div>
-                <div class="title">⚡ 2 Candidate Sighting Matches</div>
-                <div class="sub">Within 300m Zone • 94% confidence alignment</div>
-              </div>
-              <span style="font-weight:800; color:var(--teal); font-size:11px;">Inspect →</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="report-card" onclick="switchView('phone', 'detail')">
-          <div class="pet-thumb">🐈</div>
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between;">
-              <span class="badge sighting">SIGHTING</span>
-              <span style="font-size:12px; color:var(--text-secondary);">2h ago • Saldanha</span>
-            </div>
-            <div style="font-weight:800; font-size:16px; margin-top:4px;">Calico Domestic Cat</div>
-            <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Seen near metro plaza. White chest bib, black/orange patches.</div>
-            <div style="display:flex; gap:6px; margin-top:6px;">
-              <span class="chip" style="font-size:11px; padding:3px 8px;">No Collar</span>
-              <span class="chip" style="font-size:11px; padding:3px 8px; color:var(--sage);">Location Metadata Removed</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="report-card">
-          <div class="pet-thumb">🐕</div>
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between;">
-              <span class="badge safe">✓ REUNITED</span>
-              <span style="font-size:12px; color:var(--text-secondary);">3h ago • Belém</span>
-            </div>
-            <div style="font-weight:800; font-size:16px; margin-top:4px;">Max — German Shepherd</div>
-            <div style="font-size:12px; color:var(--safe); font-weight:600; margin-top:4px;">Reunited safely with owner via volunteer sighting alert!</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. REPORT DETAIL VIEW -->
-    <div class="screen" id="screen-detail">
-      <div style="padding:10px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border);">
-        <button onclick="switchView('phone', 'feed')" style="background:none; border:none; color:var(--green); font-weight:700; font-size:14px; cursor:pointer;">← Signals</button>
-        <span style="font-weight:800; font-size:15px;">Report #PS-409</span>
-        <button style="background:none; border:none; color:var(--green); font-weight:700; font-size:14px; cursor:pointer;">Share ↗</button>
-      </div>
-
-      <div class="scroll-area">
-        <!-- Hero Card -->
-        <div style="background:var(--surface-secondary); border-radius:18px; padding:16px; display:flex; align-items:center; gap:14px; border:1px solid var(--border);">
-          <div style="font-size:48px; background:var(--amber-bg); border-radius:16px; padding:12px;">🐕</div>
-          <div style="flex:1;">
-            <div style="display:flex; gap:6px; margin-bottom:4px;">
-              <span class="badge missing">MISSING • URGENT</span>
-              <span class="badge" style="background:var(--surface); border:1px solid var(--border); color:var(--sage);">Location Metadata Removed</span>
-            </div>
-            <div style="font-size:22px; font-weight:800;">Bobi</div>
-            <div style="font-size:12px; color:var(--text-secondary);">Golden Retriever • Male • 3 yrs old</div>
-          </div>
-        </div>
-
-        <!-- Safety Warning -->
-        <div class="safety-box">
-          <div style="font-weight:800; font-size:13px; color:var(--amber);">⚠️ Calm Approach Protocol</div>
-          <div style="font-size:12px; color:var(--text-primary); line-height:1.45;">Do not chase or shout. Frightened pets bolt into traffic. Sit calmly, offer water, and log sighting coordinates below.</div>
-        </div>
-
-        <!-- Explainable Candidate Match Engine -->
-        <div class="matrix-grid">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:14px; color:var(--teal);">⚡ Explainable Match Engine</span>
-            <span class="badge sighting">94% Confidence</span>
-          </div>
-          <div style="font-size:12px; color:var(--text-secondary);">3 matching traits verified against community report S-402:</div>
-
-          <div class="matrix-row">
-            <span class="label">✓ Species & Breed</span>
-            <span>Dog / Golden Retriever (Exact)</span>
-          </div>
-          <div class="matrix-row">
-            <span class="label">✓ Approximate Distance</span>
-            <span>380m from loss zone</span>
-          </div>
-          <div class="matrix-row">
-            <span class="label">✓ Visual Traits</span>
-            <span>Red nylon harness verified in photo</span>
-          </div>
-        </div>
-
-        <button class="primary-btn" onclick="switchView('phone', 'new')">Coordinate Sighting with Sentinels</button>
-      </div>
-    </div>
-
-    <!-- 4. NEW REPORT VIEW -->
-    <div class="screen" id="screen-new">
-      <div style="padding:12px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border);">
-        <button onclick="switchView('phone', 'map')" style="background:none; border:none; color:var(--text-secondary); font-size:14px; cursor:pointer;">Cancel</button>
-        <span style="font-weight:800; font-size:15px;">Broadcast Signal</span>
-        <button onclick="switchView('phone', 'map')" style="background:none; border:none; color:var(--green); font-weight:800; font-size:14px; cursor:pointer;">Publish</button>
-      </div>
-      <div class="scroll-area">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; background:var(--surface-secondary); padding:4px; border-radius:12px;">
-          <button style="padding:10px; border-radius:10px; border:none; background:var(--amber); color:#fff; font-weight:700; font-size:13px;">⚠️ Missing Pet</button>
-          <button style="padding:10px; border-radius:10px; border:none; background:transparent; color:var(--text-primary); font-weight:600; font-size:13px;">👁️ Animal Sighting</button>
-        </div>
-
-        <div style="border:2px dashed var(--border-strong); border-radius:16px; padding:20px; text-align:center; background:var(--surface);">
-          <div style="font-size:30px;">📸</div>
-          <div style="font-weight:700; font-size:14px; margin-top:4px;">Add Photos (EXIF stripped automatically)</div>
-          <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Private home address is never extracted from photo files.</div>
-        </div>
-
+      <div style="padding: 12px 16px; background: var(--hud); border-bottom: 1px solid var(--hud-border); display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <div style="font-size:11px; font-weight:800; color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase;">Approximate 300m Privacy Area</div>
-          <div style="height:120px; background:var(--map-park); border-radius:14px; position:relative; display:flex; align-items:center; justify-content:center; border:1px solid var(--border);">
-            <div style="width:84px; height:84px; border-radius:50%; background:var(--amber-bg); border:2px dashed var(--amber); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; color:var(--amber);">300m Zone</div>
-          </div>
+          <div style="font-size: 17px; font-weight: 900; letter-spacing: -0.02em;">Community Signals</div>
+          <div class="font-mono" style="font-size: 11px; color: var(--text-secondary);">LISBON METRO AREA • LIVE MESH</div>
         </div>
+        <button class="broadcast-btn" onclick="alert('Broadcast Signal modal...')">+ Broadcast</button>
+      </div>
 
-        <button class="primary-btn" onclick="switchView('phone', 'map')">Broadcast to 300m Sentinel Mesh</button>
+      <div class="feed-scroll" id="feed-list-target">
+        <!-- Injected by JavaScript -->
       </div>
     </div>
 
-    <!-- 5. TABLET MISSION CONTROL VIEW (1024px responsive layout) -->
-    <div class="screen" id="screen-tablet-view">
-      <div class="tablet-grid">
+    <!-- SCREEN 3: Intel Detail & AI Match Engine -->
+    <div class="screen" id="screen-detail">
+      <div class="detail-scroll" id="detail-target">
+        <!-- Injected by JavaScript -->
+      </div>
+    </div>
+
+    <!-- SCREEN 4: Design System Tokens & Specs -->
+    <div class="screen" id="screen-tokens">
+      <div class="tokens-screen">
+        <div style="font-size: 20px; font-weight: 900; letter-spacing: -0.02em;">Official Design System Tokens</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-top: -14px;">Strict visual and interactive token alignment</div>
+
+        <!-- Semantic Palette -->
+        <div class="token-section">
+          <div style="font-weight: 800; font-size: 14px;">1. Semantic Palette</div>
+          <div class="color-swatches-grid">
+            <div class="color-swatch-card">
+              <div class="swatch-color-box" style="background: #FF5A36;"></div>
+              <div class="swatch-info">
+                <b>Signal Coral</b>
+                <span class="font-mono">#FF5A36</span>
+                <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">Primary / Lost Alerts</div>
+              </div>
+            </div>
+
+            <div class="color-swatch-card">
+              <div class="swatch-color-box" style="background: #F59E0B;"></div>
+              <div class="swatch-info">
+                <b>Sighting Amber</b>
+                <span class="font-mono">#F59E0B</span>
+                <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">Sightings / AI</div>
+              </div>
+            </div>
+
+            <div class="color-swatch-card">
+              <div class="swatch-color-box" style="background: #10B981;"></div>
+              <div class="swatch-info">
+                <b>Reunited Emerald</b>
+                <span class="font-mono">#10B981</span>
+                <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">Found / Safe</div>
+              </div>
+            </div>
+
+            <div class="color-swatch-card">
+              <div class="swatch-color-box" style="background: #6366F1;"></div>
+              <div class="swatch-info">
+                <b>Safe Haven Indigo</b>
+                <span class="font-mono">#6366F1</span>
+                <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">Vets & Shelters</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Corner Radii Hierarchy -->
+        <div class="token-section">
+          <div style="font-weight: 800; font-size: 14px;">2. Corner Radii Hierarchy</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--card-subtle); border-radius: 24px; border: 1px solid var(--border);">
+              <span style="font-size: 12px; font-weight: 700;">Cards Surface</span>
+              <span class="font-mono" style="font-size: 11px; color: var(--coral);">rounded-3xl (24px)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--card-subtle); border-radius: 28px; border: 1px solid var(--border);">
+              <span style="font-size: 12px; font-weight: 700;">Modals / Bottom Sheets</span>
+              <span class="font-mono" style="font-size: 11px; color: var(--coral);">rounded-[28px] (28px)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--card-subtle); border-radius: 16px; border: 1px solid var(--border);">
+              <span style="font-size: 12px; font-weight: 700;">Buttons / Inputs</span>
+              <span class="font-mono" style="font-size: 11px; color: var(--coral);">rounded-2xl (16px)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--card-subtle); border-radius: 99px; border: 1px solid var(--border);">
+              <span style="font-size: 12px; font-weight: 700;">Status Pills / Badges</span>
+              <span class="font-mono" style="font-size: 11px; color: var(--coral);">rounded-full (999px)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reusable Component Gallery -->
+        <div class="token-section">
+          <div style="font-weight: 800; font-size: 14px;">3. Core Component Library</div>
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+            <div>
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">SignalStatusBadge</div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <div class="status-badge lost"><span class="pulsing-dot"></span>LOST SIGNAL</div>
+                <div class="status-badge sighting"><span class="pulsing-dot"></span>AI SIGHTING</div>
+                <div class="status-badge found"><span class="pulsing-dot"></span>SAFE & FOUND</div>
+                <div class="status-badge haven"><span class="pulsing-dot"></span>SAFE HAVEN</div>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">AIMatchConfidencePill</div>
+              <div class="ai-match-pill"><span class="sparkle">✦</span> 96% AI MATCH</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SCREEN 5: Tablet Mission Control (1024x768) -->
+    <div class="screen" id="screen-mission">
+      <div class="tablet-layout">
         <!-- Col 1: Signals Feed -->
-        <div class="col-feed">
-          <div style="padding:14px 16px; border-bottom:1px solid var(--border);">
-            <div style="font-size:18px; font-weight:800;">🐾 Community Signals</div>
-            <div style="font-size:11px; color:var(--text-secondary);">4 Active Sentinels in Lisbon Grid</div>
+        <div class="tablet-sidebar" id="tablet-sidebar-target">
+          <!-- Injected by JavaScript -->
+        </div>
+
+        <!-- Col 2: Live Spatial Map Canvas -->
+        <div class="tablet-radar-col">
+          <div style="padding: 12px 18px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: 800; font-size: 14px;">📡 Live Community Radar Mesh (~300m Grid)</span>
+              <span class="font-mono" style="font-size: 10px; color: var(--coral); background: rgba(255,90,54,0.12); padding: 2px 6px; border-radius: 99px;">GRID ACTIVE</span>
+            </div>
+            <button class="broadcast-btn" onclick="alert('Opening Broadcast...')">+ Broadcast Signal</button>
           </div>
-          <div style="padding:12px; display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1;">
-            <div class="report-card" onclick="selectIncident('bobi')">
-              <div class="pet-thumb" style="width:60px; height:60px; font-size:26px;">🐕</div>
-              <div style="flex:1;">
-                <div class="badge missing">MISSING</div>
-                <div style="font-weight:700; font-size:14px; margin-top:2px;">Bobi (Golden)</div>
-                <div style="font-size:11px; color:var(--text-secondary);">Alameda • 45m ago</div>
+          <div class="radar-map-canvas" style="flex: 1;">
+            <div class="map-water-feature"><span class="water-label">TAGUS ESTUARY LIVE TELEMETRY</span></div>
+            <div class="park-feature" style="top: 80px; left: 60px; width: 380px; height: 260px;"></div>
+            <div class="road-feature-h" style="top: 200px;"></div>
+            <div class="road-feature-v" style="left: 240px;"></div>
+
+            <div class="radar-circle lost" style="width: 160px; height: 160px; top: 110px; left: 140px;" onclick="selectSignal('SIG-409')">
+              <div class="pet-pin-marker" style="margin-top: -24px;">
+                <div class="pet-pin-avatar-ring">
+                  <svg viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="48" fill="#F59E0B" />
+                    <ellipse cx="50" cy="54" rx="26" ry="25" fill="#FEF3C7" />
+                    <circle cx="39" cy="48" r="4" fill="#0F172A" />
+                    <circle cx="61" cy="48" r="4" fill="#0F172A" />
+                  </svg>
+                </div>
+                <div class="pointer-triangle"></div>
               </div>
             </div>
 
-            <div class="report-card" onclick="selectIncident('luna')">
-              <div class="pet-thumb" style="width:60px; height:60px; font-size:26px;">🐈</div>
-              <div style="flex:1;">
-                <div class="badge sighting">SIGHTING</div>
-                <div style="font-weight:700; font-size:14px; margin-top:2px;">Calico Cat</div>
-                <div style="font-size:11px; color:var(--text-secondary);">Saldanha • 2h ago</div>
+            <div class="radar-circle sighting" style="width: 130px; height: 130px; top: 260px; left: 320px;" onclick="selectSignal('SIG-412')">
+              <div class="pet-pin-marker sighting" style="margin-top: -24px;">
+                <div class="pet-pin-avatar-ring">
+                  <svg viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="48" fill="#EA580C" />
+                    <ellipse cx="50" cy="54" rx="26" ry="23" fill="#FFFBEB" />
+                    <circle cx="39" cy="52" r="4" fill="#059669" />
+                    <circle cx="61" cy="52" r="4" fill="#059669" />
+                  </svg>
+                </div>
+                <div class="pointer-triangle"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Col 2: Live Radar Map -->
-        <div class="col-map">
-          <div style="padding:12px 16px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-weight:800; font-size:14px;">📡 Live Radar Mesh (~300m privacy grid)</div>
-            <button style="background:var(--amber); color:#fff; border:none; border-radius:99px; padding:6px 12px; font-weight:700; font-size:11px; cursor:pointer;">+ Broadcast Signal</button>
-          </div>
-          <div style="flex:1; position:relative; background:var(--map-bg);">
-            <div class="map-water" style="height:80px;"><span class="water-label">🌊 Tagus Estuary</span></div>
-            <div class="park-shape" style="top:100px; left:60px; width:340px; height:240px;"></div>
-            <div class="privacy-zone zone-missing" style="top:120px; left:120px;" onclick="selectIncident('bobi')">
-              <div class="zone-pin" style="background:var(--amber);">⚠️ Bobi (~300m)</div>
-            </div>
-            <div class="privacy-zone zone-sighting" style="top:220px; left:280px;" onclick="selectIncident('luna')">
-              <div class="zone-pin" style="background:var(--teal);">👁️ Sighting S-402</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Col 3: Telemetry & Match Inspector -->
-        <div class="col-inspector">
-          <div style="font-size:16px; font-weight:800;">Telemetry Inspector</div>
-          <div style="background:var(--surface-secondary); padding:12px; border-radius:12px;">
-            <div class="badge missing">MISSING ALERT</div>
-            <div style="font-size:18px; font-weight:800; margin-top:4px;">Bobi</div>
-            <div style="font-size:12px; color:var(--text-secondary);">Golden Retriever • 3 yrs • Lisbon</div>
-          </div>
-
-          <div class="matrix-grid">
-            <div style="display:flex; justify-content:space-between;">
-              <span style="font-weight:700; font-size:12px; color:var(--teal);">Match Confidence</span>
-              <span class="badge sighting">94%</span>
-            </div>
-            <div class="matrix-row"><span class="label">✓ Species</span><span>Dog</span></div>
-            <div class="matrix-row"><span class="label">✓ Breed</span><span>Golden Retriever</span></div>
-            <div class="matrix-row"><span class="label">✓ Distance</span><span>380m from loss zone</span></div>
-          </div>
-
-          <button class="primary-btn" onclick="alert('Coordinating with local Lisbon sentinels...')">Coordinate Sentinels</button>
+        <!-- Col 3: Telemetry Inspector -->
+        <div class="tablet-inspector-col" id="tablet-inspector-target">
+          <!-- Injected by JavaScript -->
         </div>
       </div>
     </div>
 
-    <!-- Tab Bar (Phone only) -->
-    <div class="tab-bar" id="phone-tabbar">
-      <button class="tab-btn active" onclick="switchView('phone', 'map', this)"><span>🗺️</span><span>Map</span></button>
-      <button class="tab-btn" onclick="switchView('phone', 'feed', this)"><span>📡</span><span>Signals</span></button>
-      <button class="tab-btn" onclick="switchView('phone', 'detail', this)"><span>🐾</span><span>Detail</span></button>
-      <button class="tab-btn" onclick="switchView('phone', 'new', this)"><span>➕</span><span>Report</span></button>
+    <!-- Phone Bottom Tab Bar -->
+    <div class="phone-nav-bar" id="phone-tabbar">
+      <button class="nav-btn active" onclick="switchView('phone', 'map', document.getElementById('btn-phone-map'))">
+        <span>🗺️</span>
+        <span>Radar</span>
+      </button>
+      <button class="nav-btn" onclick="switchView('phone', 'feed', document.getElementById('btn-phone-feed'))">
+        <span>📡</span>
+        <span>Signals</span>
+      </button>
+      <button class="nav-btn" onclick="switchView('phone', 'detail', document.getElementById('btn-phone-detail'))">
+        <span>🐾</span>
+        <span>Intel</span>
+      </button>
+      <button class="nav-btn" onclick="switchView('phone', 'tokens', document.getElementById('btn-phone-tokens'))">
+        <span>🎨</span>
+        <span>Tokens</span>
+      </button>
     </div>
 
   </div>
 </div>
 
 <script>
+  // Signal Mock Dataset aligned with Design Prompt
+  const SIGNALS = [
+    {
+      id: 'SIG-409',
+      name: 'Barnaby',
+      species: 'Dog',
+      breed: 'Golden Retriever',
+      status: 'lost',
+      statusLabel: 'LOST SIGNAL',
+      urgency: 'Critical • Needs Medication',
+      lastSeen: '14m ago',
+      distance: '0.3 mi away',
+      locationName: 'Oakwood Dog Park (~300m mesh)',
+      coords: '38.7247° N, 9.1455° W',
+      aiMatch: 96,
+      collar: 'Red leather collar with AirTag',
+      temperament: 'Friendly but skittish around loud sounds',
+      svg: `<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="48" fill="#F59E0B"/><ellipse cx="50" cy="54" rx="26" ry="25" fill="#FEF3C7"/><circle cx="39" cy="48" r="4" fill="#0F172A"/><circle cx="61" cy="48" r="4" fill="#0F172A"/><ellipse cx="50" cy="58" rx="6" ry="4.5" fill="#0F172A"/><path d="M46 66 Q50 72 54 66 Z" fill="#FF5A36"/></svg>`,
+      description: 'Slipped out of his harness near the north trail entrance. Responds to whistling and "treat".'
+    },
+    {
+      id: 'SIG-412',
+      name: 'Mochi',
+      species: 'Cat',
+      breed: 'Scottish Fold (Calico)',
+      status: 'sighting',
+      statusLabel: 'AI SIGHTING',
+      urgency: 'Spotted on Smart Cam',
+      lastSeen: '38m ago',
+      distance: '0.6 mi away',
+      locationName: 'Maple Ave Alleyway (~300m mesh)',
+      coords: '38.7290° N, 9.1412° W',
+      aiMatch: 89,
+      collar: 'Pink breakaway collar with bell',
+      temperament: 'Shy, hides under parked vehicles',
+      svg: `<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="48" fill="#EA580C"/><polygon points="24,42 20,20 40,30" fill="#EA580C"/><polygon points="76,42 80,20 60,30" fill="#1E293B"/><ellipse cx="50" cy="54" rx="26" ry="23" fill="#FFFBEB"/><circle cx="39" cy="52" r="4" fill="#059669"/><circle cx="61" cy="52" r="4" fill="#059669"/><polygon points="47,59 53,59 50,63" fill="#F43F5E"/></svg>`,
+      description: 'Smart camera detected calico pattern matching Mochi crossing behind the local bakery.'
+    },
+    {
+      id: 'SIG-401',
+      name: 'Pixel',
+      species: 'Cat',
+      breed: 'Tuxedo Shorthair',
+      status: 'found',
+      statusLabel: 'SAFE & FOUND',
+      urgency: 'Secured by Neighbor',
+      lastSeen: '2h ago',
+      distance: '0.8 mi away',
+      locationName: '742 Evergreen Terrace (~300m mesh)',
+      coords: '38.7210° N, 9.1380° W',
+      aiMatch: 99,
+      collar: 'No collar, microchip verification ready',
+      temperament: 'Purring, very affectionate, warm and fed',
+      svg: `<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="48" fill="#1E293B"/><polygon points="50,48 33,73 67,73" fill="#F8FAFC"/><circle cx="39" cy="50" r="4" fill="#FACC15"/><circle cx="61" cy="50" r="4" fill="#FACC15"/><polygon points="47,58 53,58 50,62" fill="#FB7185"/></svg>`,
+      description: 'Walked right onto front porch asking for dinner. Safe inside sunroom with fresh water.'
+    },
+    {
+      id: 'HAVEN-01',
+      name: 'Beacon 24/7 Vet & Shelter',
+      species: 'Haven',
+      breed: 'Verified Safe Haven Partner',
+      status: 'haven',
+      statusLabel: 'SAFE HAVEN',
+      urgency: 'Open 24 Hours • Free Chip Scan',
+      lastSeen: 'Live Station',
+      distance: '0.5 mi away',
+      locationName: 'Central Blvd Partner Hub',
+      coords: '38.7230° N, 9.1430° W',
+      aiMatch: 100,
+      collar: 'Universal ISO Microchip Reader Available',
+      temperament: 'Emergency holding suites available',
+      svg: `<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="48" fill="#6366F1"/><rect x="42" y="26" width="16" height="48" rx="5" fill="#FFFFFF"/><rect x="26" y="42" width="48" height="16" rx="5" fill="#FFFFFF"/></svg>`,
+      description: 'Official PetSignal Safe Drop-off & instant universal microchip scanning center.'
+    }
+  ];
+
+  let currentSelectedID = 'SIG-409';
+
+  function renderCard(s, isSelected = false) {
+    return `
+      <div class="signal-card ${isSelected ? 'selected' : ''}" onclick="selectSignal('${s.id}')">
+        <div class="card-avatar-box">${s.svg}</div>
+        <div class="card-content">
+          <div class="card-header-row">
+            <span class="status-badge ${s.status}"><span class="pulsing-dot"></span>${s.statusLabel}</span>
+            <span class="font-mono" style="font-size: 11px; color: var(--text-secondary);">${s.lastSeen}</span>
+          </div>
+          <div style="display: flex; align-items: baseline; gap: 6px;">
+            <div style="font-size: 15px; font-weight: 800; letter-spacing: -0.02em;">${s.name}</div>
+            <span class="font-mono" style="font-size: 10px; color: var(--text-secondary); font-weight: 700;">#${s.id}</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.3;">${s.breed} • ${s.distance}</div>
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+            <span class="ai-match-pill"><span class="sparkle">✦</span> ${s.aiMatch}% MATCH</span>
+          </div>
+          <div class="card-footer-actions">
+            <span class="action-tag">${s.species}</span>
+            <span class="details-link">Details →</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDock() {
+    const s = SIGNALS.find(item => item.id === currentSelectedID) || SIGNALS[0];
+    document.getElementById('dock-card-target').innerHTML = renderCard(s, true);
+  }
+
+  function renderFeed() {
+    document.getElementById('feed-list-target').innerHTML = SIGNALS.map(s => renderCard(s, s.id === currentSelectedID)).join('');
+  }
+
+  function renderDetail() {
+    const s = SIGNALS.find(item => item.id === currentSelectedID) || SIGNALS[0];
+    document.getElementById('detail-target').innerHTML = `
+      <div class="hero-bento">
+        ${s.svg}
+        <div style="position: absolute; top: 12px; left: 12px;">
+          <span class="status-badge ${s.status}"><span class="pulsing-dot"></span>${s.statusLabel}</span>
+        </div>
+        <div style="position: absolute; top: 12px; right: 12px;">
+          <span class="font-mono" style="font-size: 11px; font-weight: 800; background: var(--hud); padding: 4px 10px; border-radius: 99px; border: 1px solid var(--border);">#${s.id}</span>
+        </div>
+        <div style="position: absolute; bottom: 10px; right: 12px;">
+          <span style="font-size: 10px; font-weight: 700; color: var(--text-secondary); background: var(--hud); padding: 3px 8px; border-radius: 99px;">🔒 300m Privacy Area</span>
+        </div>
+      </div>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 16px; box-shadow: var(--shadow-card);">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <div style="font-size: 20px; font-weight: 900; letter-spacing: -0.03em;">${s.name}</div>
+          <span class="font-mono" style="font-size: 12px; color: var(--text-secondary);">${s.lastSeen}</span>
+        </div>
+        <div class="font-mono" style="font-size: 11px; color: var(--coral); margin-top: 4px;">📍 ${s.locationName}</div>
+        <div style="font-size: 13px; color: var(--text-primary); margin-top: 8px; line-height: 1.4;">${s.description}</div>
+      </div>
+
+      <div class="bento-grid-2x2">
+        <div class="bento-cell">
+          <div class="bento-cell-label">Species & Breed</div>
+          <div class="bento-cell-val">${s.breed}</div>
+        </div>
+        <div class="bento-cell">
+          <div class="bento-cell-label">AI Neural Match</div>
+          <div class="bento-cell-val" style="color: var(--indigo); font-family: monospace;">✦ ${s.aiMatch}% Score</div>
+        </div>
+        <div class="bento-cell">
+          <div class="bento-cell-label">Collar / Identifiers</div>
+          <div class="bento-cell-val" style="font-size: 12px;">${s.collar}</div>
+        </div>
+        <div class="bento-cell">
+          <div class="bento-cell-label">Privacy Radar Mesh</div>
+          <div class="bento-cell-val" style="color: var(--coral);">~300m Snapped</div>
+        </div>
+      </div>
+
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 14px; box-shadow: var(--shadow-card); display: flex; gap: 10px;">
+        <button class="broadcast-btn" style="flex: 1; justify-content: center; padding: 12px;" onclick="alert('Logging Community Sighting for ' + '${s.name}' + '...')">👁️ Report Sighting</button>
+        <button style="background: var(--card-subtle); border: 1px solid var(--border); border-radius: 16px; padding: 0 16px; font-weight: 700; cursor: pointer; color: var(--text-primary);" onclick="alert('Marking safe...')">✓ Safe</button>
+      </div>
+    `;
+  }
+
+  function renderTablet() {
+    document.getElementById('tablet-sidebar-target').innerHTML = `
+      <div style="font-size: 16px; font-weight: 900; margin-bottom: 6px;">Active Signals</div>
+      ${SIGNALS.map(s => renderCard(s, s.id === currentSelectedID)).join('')}
+    `;
+
+    const s = SIGNALS.find(item => item.id === currentSelectedID) || SIGNALS[0];
+    document.getElementById('tablet-inspector-target').innerHTML = `
+      <div style="font-size: 16px; font-weight: 900;">Telemetry Inspector</div>
+      <div class="hero-bento" style="height: 160px;">${s.svg}</div>
+      <div style="background: var(--card-subtle); padding: 14px; border-radius: 20px; border: 1px solid var(--border);">
+        <span class="status-badge ${s.status}"><span class="pulsing-dot"></span>${s.statusLabel}</span>
+        <div style="font-size: 18px; font-weight: 900; margin-top: 6px;">${s.name}</div>
+        <div class="font-mono" style="font-size: 11px; color: var(--text-secondary);">${s.breed} • #${s.id}</div>
+        <div class="font-mono" style="font-size: 11px; color: var(--coral); margin-top: 4px;">📍 ${s.coords}</div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--card-subtle); border-radius: 16px; border: 1px solid var(--border);">
+        <span style="font-weight: 700; font-size: 12px;">Neural Match Confidence</span>
+        <span class="ai-match-pill"><span class="sparkle">✦</span> ${s.aiMatch}% MATCH</span>
+      </div>
+
+      <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">${s.description}</div>
+
+      <button class="broadcast-btn" style="width: 100%; justify-content: center; padding: 12px;" onclick="alert('Coordinating community radar for ' + '${s.name}')">Coordinate Radar Sentinels</button>
+    `;
+  }
+
+  function selectSignal(id) {
+    currentSelectedID = id;
+    renderDock();
+    renderFeed();
+    renderDetail();
+    renderTablet();
+  }
+
   function switchView(deviceMode, screenId, btn) {
     const device = document.getElementById('device');
     const statusBar = document.getElementById('phone-status');
@@ -481,6 +1290,15 @@
       document.querySelectorAll('.toolbar button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     }
+
+    // Update bottom nav
+    const navMap = { map: 0, feed: 1, detail: 2, tokens: 3 };
+    document.querySelectorAll('.phone-nav-bar .nav-btn').forEach((nb, idx) => {
+      if (idx === navMap[screenId]) nb.classList.add('active');
+      else nb.classList.remove('active');
+    });
+
+    if (screenId === 'mission') renderTablet();
   }
 
   function toggleTheme() {
@@ -488,25 +1306,12 @@
     el.setAttribute('data-theme', el.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
   }
 
-  function selectIncident(pet) {
-    if (pet === 'luna') {
-      document.getElementById('dock-thumb').textContent = '🐈';
-      document.getElementById('dock-badge').className = 'badge sighting';
-      document.getElementById('dock-badge').textContent = 'SIGHTING';
-      document.getElementById('dock-time').textContent = '2h ago • ~400m away';
-      document.getElementById('dock-title').textContent = 'Calico Domestic Cat';
-      document.getElementById('dock-desc').textContent = 'Seen near metro entrance. White bib, black/orange patches.';
-      document.getElementById('dock-match').style.display = 'none';
-    } else {
-      document.getElementById('dock-thumb').textContent = '🐕';
-      document.getElementById('dock-badge').className = 'badge missing';
-      document.getElementById('dock-badge').textContent = 'MISSING';
-      document.getElementById('dock-time').textContent = '45m ago • ~300m away';
-      document.getElementById('dock-title').textContent = 'Bobi — Golden Retriever';
-      document.getElementById('dock-desc').textContent = 'Cream/yellow coat, red nylon harness. Friendly.';
-      document.getElementById('dock-match').style.display = 'flex';
-    }
-  }
+  // Initial Render
+  renderDock();
+  renderFeed();
+  renderDetail();
+  renderTablet();
 </script>
+
 </body>
 </html>

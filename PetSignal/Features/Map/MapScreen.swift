@@ -35,36 +35,28 @@ struct MapScreen: View {
             ZStack(alignment: .top) {
                 Map(position: $cameraPosition, selection: $selectedReportID) {
                     ForEach(visibleReports) { report in
-                        // Privacy-by-Default 300m Approximate Area Circle
+                        // Privacy-by-Default 300m Approximate Area Circle (Tactical Radar Pulse)
                         MapCircle(center: report.location.coordinate, radius: 300)
-                            .foregroundStyle(report.kind.tint.opacity(selectedReportID == report.id ? 0.28 : 0.18))
+                            .foregroundStyle(report.kind.tint.opacity(selectedReportID == report.id ? 0.30 : 0.16))
                             .stroke(
                                 report.kind.tint,
                                 lineWidth: selectedReportID == report.id ? 3 : 1.5
                             )
                             .mapOverlayLevel(level: .aboveRoads)
 
-                        // Center Zone Badge Annotation (Snapped to 300m Privacy Grid)
+                        // 3. Custom PetPinMarker with Avatar, Semantic Ring & Radar Wave
                         Annotation(
                             report.displayName,
                             coordinate: report.location.coordinate,
-                            anchor: .center
+                            anchor: .bottom
                         ) {
                             Button {
                                 selectedReportID = report.id
                             } label: {
-                                HStack(spacing: 5) {
-                                    Image(systemName: report.species.systemImage)
-                                        .font(.caption2.weight(.bold))
-                                    Text(report.kind == .missing ? "Missing" : "Sighting")
-                                        .font(.caption2.weight(.bold))
-                                }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(report.kind.tint)
-                                .foregroundStyle(.white)
-                                .clipShape(Capsule())
-                                .shadow(color: .black.opacity(0.25), radius: 4, y: 2)
+                                PetPinMarker(
+                                    report: report,
+                                    isSelected: selectedReportID == report.id
+                                )
                             }
                             .frame(minWidth: 44, minHeight: 44)
                             .accessibilityLabel("Approximate 300m zone for \(report.kind.rawValue) \(report.species.rawValue): \(report.displayName)")
@@ -80,7 +72,7 @@ struct MapScreen: View {
                 }
                 .sensoryFeedback(.selection, trigger: selectedReportID)
 
-                // Top Floating Glass Filter Header
+                // 4. Floating GlassNavigationHUD Top Header
                 topFloatingHeader
             }
             .safeAreaInset(edge: .bottom, spacing: 8) {
@@ -94,12 +86,12 @@ struct MapScreen: View {
             .overlay {
                 if visibleReports.isEmpty {
                     ContentUnavailableView(
-                        "No active reports",
-                        systemImage: "map",
+                        "No Active Radar Signals",
+                        systemImage: "dot.radiowaves.left.and.right",
                         description: Text(emptyStateText)
                     )
                     .padding(20)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .glassHUD(cornerRadius: PetSignalTheme.cardRadius)
                     .padding()
                 }
             }
@@ -124,43 +116,68 @@ struct MapScreen: View {
         return visibleReports.first { $0.id == selectedReportID }
     }
 
+    // MARK: - 4. Floating GlassNavigationHUD Header
+
     private var topFloatingHeader: some View {
         VStack(spacing: 8) {
-            // Main App Header Bar
+            // Main Glass Navigation Bar
             HStack(spacing: 12) {
                 SignalMark(size: 38)
+
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("PetSignal Sentinel")
-                        .font(.headline.weight(.bold))
-                    Label("300m Privacy Mesh Active", systemImage: "lock.shield.fill")
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(PetSignalTheme.green)
+                    HStack(spacing: 6) {
+                        Text("PETSIGNAL")
+                            .font(.system(size: 14, weight: .black))
+                            .tracking(0.6)
+                            .foregroundStyle(.primary)
+
+                        Text("RADAR")
+                            .font(.system(size: 10, weight: .bold).monospaced())
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(PetSignalTheme.coral.opacity(0.15))
+                            .foregroundStyle(PetSignalTheme.coral)
+                            .clipShape(Capsule())
+                    }
+
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(PetSignalTheme.coral)
+                            .frame(width: 5, height: 5)
+                        Text("\(visibleReports.count) ACTIVE SIGNALS • ~300m MESH")
+                            .font(.system(size: 10, weight: .bold).monospaced())
+                            .foregroundStyle(.secondary)
+                    }
                 }
+
                 Spacer(minLength: 0)
+
+                // Primary Brand Broadcast CTA Button
                 Button(action: onCreateReport) {
-                    Label("Broadcast", systemImage: "plus")
-                        .font(.subheadline.weight(.bold))
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(PetSignalTheme.green, in: Capsule())
-                        .foregroundStyle(PetSignalTheme.onGreenForeground)
+                    HStack(spacing: 5) {
+                        Image(systemName: "plus")
+                            .font(.caption.weight(.bold))
+                        Text("Broadcast")
+                            .font(.subheadline.weight(.bold))
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(PetSignalTheme.coralGradient, in: Capsule())
+                    .foregroundStyle(.white)
+                    .shadow(color: PetSignalTheme.coral.opacity(0.35), radius: 8, y: 2)
                 }
                 .frame(minHeight: 44)
                 .accessibilityHint("Opens the report creation form")
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .strokeBorder(PetSignalTheme.border.opacity(0.4), lineWidth: 1)
-            )
+            .glassHUD(cornerRadius: 22)
 
             // Scrollable Quick Filter Chips Bar
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     filterChip(
-                        title: "All (\(visibleReports.count))",
+                        title: "ALL (\(visibleReports.count))",
                         isSelected: kindFilter == nil && speciesFilter == nil
                     ) {
                         kindFilter = nil
@@ -169,7 +186,7 @@ struct MapScreen: View {
 
                     ForEach(ReportKind.allCases) { kind in
                         filterChip(
-                            title: kind.rawValue,
+                            title: kind == .missing ? "LOST" : "SIGHTINGS",
                             isSelected: kindFilter == kind
                         ) {
                             kindFilter = (kindFilter == kind) ? nil : kind
@@ -178,7 +195,7 @@ struct MapScreen: View {
 
                     ForEach(AnimalSpecies.allCases) { species in
                         filterChip(
-                            title: species.rawValue,
+                            title: species.rawValue.uppercased(),
                             isSelected: speciesFilter == species
                         ) {
                             speciesFilter = (speciesFilter == species) ? nil : species
@@ -195,33 +212,50 @@ struct MapScreen: View {
     private func filterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .font(.caption.weight(.bold))
+                .font(.system(size: 11, weight: .bold))
+                .tracking(0.4)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(
-                    isSelected ? AnyShapeStyle(PetSignalTheme.green) : AnyShapeStyle(.regularMaterial),
+                    isSelected
+                        ? AnyShapeStyle(PetSignalTheme.coral)
+                        : AnyShapeStyle(PetSignalTheme.elevatedGlassHUD),
                     in: Capsule()
                 )
                 .overlay(
                     Capsule().strokeBorder(
-                        isSelected ? PetSignalTheme.green : PetSignalTheme.border.opacity(0.5),
+                        isSelected ? PetSignalTheme.coral : PetSignalTheme.cardBorder,
                         lineWidth: 1
                     )
                 )
-                .foregroundStyle(isSelected ? PetSignalTheme.onGreenForeground : .primary)
+                .foregroundStyle(isSelected ? Color.white : Color.primary)
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
+    // MARK: - Selected Report Floating Dock (Modal Sheet Radius 28px)
+
     private func selectedReportDock(_ report: AnimalReport) -> some View {
         VStack(alignment: .leading, spacing: 8) {
+            // Drag grab handle
+            RoundedRectangle(cornerRadius: 99, style: .continuous)
+                .fill(Color.secondary.opacity(0.35))
+                .frame(width: 36, height: 4)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 2)
+
             HStack {
-                Label("Selected 300m Privacy Zone", systemImage: "mappin.and.ellipse")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 5) {
+                    Image(systemName: "crosshair")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(PetSignalTheme.coral)
+                    Text("ACTIVE RADAR INTEL")
+                        .font(.system(size: 10, weight: .bold).monospaced())
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
-                Text("Tap for details & safety")
+                Text("Tap for details")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -232,18 +266,15 @@ struct MapScreen: View {
                 ReportCard(
                     report: report,
                     isSaved: reportStore.savedReportIDs.contains(report.id),
-                    candidateMatchCount: matchCount
+                    candidateMatchCount: matchCount,
+                    isSelected: true
                 )
             }
             .buttonStyle(.plain)
             .accessibilityHint("Opens full report details, safety guidance, and follow-ups")
         }
-        .padding(10)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .strokeBorder(PetSignalTheme.border.opacity(0.5), lineWidth: 1)
-        )
+        .padding(12)
+        .glassHUD(cornerRadius: PetSignalTheme.modalRadius)
         .accessibilityElement(children: .contain)
         .accessibilityFocused($focusedReportID, equals: report.id)
     }

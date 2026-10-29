@@ -19,7 +19,7 @@ struct ReportDetailView: View {
             if let report {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 18) {
-                        // 1. Hero Image / Thumbnail + Privacy EXIF Badge
+                        // 1. Hero Image / Thumbnail + Privacy EXIF Badge + Signal ID Telemetry
                         heroSection(report)
 
                         // 2. Status Banner: Reunited Celebration or Calm Safety Guidance
@@ -32,7 +32,7 @@ struct ReportDetailView: View {
                         // 3. Title, Timestamp & Summary
                         overviewSection(report)
 
-                        // 4. Animal Attributes 2x2 Grid
+                        // 4. Animal Attributes 2x2 Grid (Bento)
                         attributesGrid(report)
 
                         // 5. Approximate Privacy Area Map Card
@@ -54,7 +54,7 @@ struct ReportDetailView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
-                    .padding(.bottom, report.status == .active ? 80 : 20)
+                    .padding(.bottom, report.status == .active ? 88 : 24)
                 }
                 .background(PetSignalTheme.canvas)
                 .safeAreaInset(edge: .bottom) {
@@ -62,18 +62,20 @@ struct ReportDetailView: View {
                         bottomActionBar(report)
                     }
                 }
-                .navigationTitle("Report Details")
+                .navigationTitle(report.signalID)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         ShareLink(item: shareText(for: report)) {
                             Image(systemName: "square.and.arrow.up")
+                                .foregroundStyle(PetSignalTheme.coral)
                         }
                         Button {
                             reportStore.toggleSaved(report.id)
                         } label: {
                             Image(systemName: reportStore.savedReportIDs.contains(report.id)
                                   ? "bookmark.fill" : "bookmark")
+                                .foregroundStyle(PetSignalTheme.coral)
                         }
                         .accessibilityLabel(reportStore.savedReportIDs.contains(report.id)
                             ? "Remove saved report" : "Save report")
@@ -88,7 +90,7 @@ struct ReportDetailView: View {
                     }
                     Button("Cancel", role: .cancel) {}
                 } message: {
-                    Text("This updates the community report status so neighbors know the animal is safe.")
+                    Text("This updates the community radar status so neighbors know the animal is safe.")
                 }
                 .alert("Delete this report?", isPresented: $isShowingDeleteConfirmation) {
                     Button("Cancel", role: .cancel) {}
@@ -110,11 +112,11 @@ struct ReportDetailView: View {
         }
     }
 
-    // MARK: - Hero Section
+    // MARK: - Hero Section with Signal ID Telemetry
 
     private func heroSection(_ report: AnimalReport) -> some View {
         ZStack(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
+            RoundedRectangle(cornerRadius: PetSignalTheme.cardRadius, style: .continuous)
                 .fill(PetSignalTheme.subtleSurface)
                 .frame(maxWidth: .infinity)
                 .frame(height: 240)
@@ -126,30 +128,50 @@ struct ReportDetailView: View {
                             .clipped()
                     } else {
                         VStack(spacing: 8) {
-                            Image(systemName: report.species.systemImage)
-                                .font(.system(size: 64, weight: .semibold))
-                                .foregroundStyle(report.status != .active ? PetSignalTheme.green : report.kind.tint)
-                            Text("Location Metadata Removed • Community Verified")
-                                .font(.caption2.weight(.medium))
+                            ZStack {
+                                Circle()
+                                    .fill(report.kind.tint.opacity(0.12))
+                                    .frame(width: 88, height: 88)
+                                Image(systemName: report.species.systemImage)
+                                    .font(.system(size: 48, weight: .bold))
+                                    .foregroundStyle(report.status != .active ? PetSignalTheme.emerald : report.kind.tint)
+                            }
+                            Text("COMMUNITY RADAR TELEMETRY • VERIFIED")
+                                .font(.system(size: 10, weight: .bold).monospaced())
                                 .foregroundStyle(.secondary)
                         }
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: PetSignalTheme.cardRadius, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .strokeBorder(PetSignalTheme.border.opacity(0.4), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: PetSignalTheme.cardRadius, style: .continuous)
+                        .strokeBorder(PetSignalTheme.cardBorder, lineWidth: 1)
                 )
 
-            HStack {
-                StatusPillBadge(kind: report.kind, status: report.status)
+            // Top Status Bar: Live SignalStatusBadge & Signal ID
+            VStack {
+                HStack {
+                    SignalStatusBadge(kind: report.kind, status: report.status)
+                    Spacer()
+                    Text(report.signalID)
+                        .font(.system(size: 11, weight: .bold).monospaced())
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 4.5)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .overlay(Capsule().strokeBorder(PetSignalTheme.hudBorder, lineWidth: 1))
+                        .foregroundStyle(.primary)
+                }
                 Spacer()
-                Label("300m Privacy Area", systemImage: "lock.shield.fill")
-                    .font(.caption2.weight(.bold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .overlay(Capsule().strokeBorder(PetSignalTheme.border.opacity(0.5), lineWidth: 1))
+                HStack {
+                    Spacer()
+                    Label("300m Privacy Area", systemImage: "lock.shield.fill")
+                        .font(.system(size: 10, weight: .bold))
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 4.5)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .overlay(Capsule().strokeBorder(PetSignalTheme.hudBorder, lineWidth: 1))
+                        .foregroundStyle(.secondary)
+                }
             }
             .padding(14)
         }
@@ -161,21 +183,21 @@ struct ReportDetailView: View {
         HStack(spacing: 12) {
             Image(systemName: "checkmark.seal.fill")
                 .font(.title2)
-                .foregroundStyle(PetSignalTheme.green)
+                .foregroundStyle(PetSignalTheme.emerald)
             VStack(alignment: .leading, spacing: 2) {
-                Text(report.status == .reunited ? "This pet has been reported reunited" : "This animal has been reported safe")
+                Text(report.status == .reunited ? "This pet has been safely reunited" : "This animal has been secured & safe")
                     .font(.subheadline.weight(.bold))
-                Text("Thank you to the neighbors who shared sightings and kept watch.")
+                Text("Thank you to the community sentinels who shared sightings.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(PetSignalTheme.green.opacity(0.12), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(PetSignalTheme.emerald.opacity(0.12), in: RoundedRectangle(cornerRadius: PetSignalTheme.buttonRadius, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(PetSignalTheme.green.opacity(0.35), lineWidth: 1)
+            RoundedRectangle(cornerRadius: PetSignalTheme.buttonRadius, style: .continuous)
+                .strokeBorder(PetSignalTheme.emerald.opacity(0.35), lineWidth: 1)
         )
     }
 
@@ -183,9 +205,18 @@ struct ReportDetailView: View {
 
     private func overviewSection(_ report: AnimalReport) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(report.displayName)
-                .font(.title2.weight(.bold))
-                .foregroundStyle(.primary)
+            HStack(alignment: .firstTextBaseline) {
+                Text(report.displayName)
+                    .font(.title2.weight(.black))
+                    .tracking(-0.4)
+                    .foregroundStyle(.primary)
+
+                Spacer()
+
+                Text(report.signalID)
+                    .font(.system(size: 12, weight: .bold).monospaced())
+                    .foregroundStyle(.secondary)
+            }
 
             HStack(spacing: 8) {
                 Label {
@@ -194,9 +225,9 @@ struct ReportDetailView: View {
                     Image(systemName: "clock.fill")
                 }
                 Text("•")
-                Label(report.location.approximateAreaDescription, systemImage: "mappin.and.ellipse")
+                Label(report.location.approximateAreaDescription, systemImage: "dot.scope")
             }
-            .font(.subheadline.monospacedDigit())
+            .font(.system(size: 12, weight: .medium).monospaced())
             .foregroundStyle(.secondary)
 
             Text(report.summary)
@@ -214,14 +245,14 @@ struct ReportDetailView: View {
         .petSignalCard()
     }
 
-    // MARK: - 2x2 Attributes Grid
+    // MARK: - 2x2 Attributes Grid (Bento)
 
     private func attributesGrid(_ report: AnimalReport) -> some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
             AttributeCell(label: "SPECIES", value: report.species.rawValue)
-            AttributeCell(label: "STATUS", value: report.status.displayName)
-            AttributeCell(label: "CATEGORY", value: report.kind.rawValue)
-            AttributeCell(label: "PRIVACY ZONE", value: "~300m Grid")
+            AttributeCell(label: "SIGNAL STATUS", value: report.status.displayName)
+            AttributeCell(label: "CATEGORY", value: report.kind == .missing ? "Lost Signal" : "Sighting Alert")
+            AttributeCell(label: "PRIVACY MESH", value: "~300m Grid")
         }
     }
 
@@ -230,12 +261,13 @@ struct ReportDetailView: View {
     private func locationSection(_ report: AnimalReport) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Label("Approximate Location", systemImage: "shield.lefthalf.filled")
-                    .font(.headline)
+                Label("Approximate Radar Area", systemImage: "dot.scope")
+                    .font(.headline.weight(.bold))
+                    .tracking(-0.2)
                 Spacer()
-                Text("Grid Snapped")
-                    .font(.caption2.weight(.bold))
-                    .foregroundStyle(PetSignalTheme.green)
+                Text("~300m Mesh")
+                    .font(.system(size: 10, weight: .bold).monospaced())
+                    .foregroundStyle(PetSignalTheme.coral)
             }
 
             Map(initialPosition: .region(
@@ -257,10 +289,10 @@ struct ReportDetailView: View {
                 }
             }
             .frame(height: 160)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: PetSignalTheme.buttonRadius, style: .continuous))
             .allowsHitTesting(false)
 
-            Text("Public location is snapped to an approximate 300-meter grid centered around \(report.location.approximateAreaDescription). Private home addresses and precise coordinates are never published.")
+            Text("Public location is snapped to an approximate 300-meter grid centered around \(report.location.approximateAreaDescription). Private home addresses and precise GPS coordinates are never published.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
@@ -276,7 +308,7 @@ struct ReportDetailView: View {
             HStack(spacing: 12) {
                 Image(systemName: "link.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(PetSignalTheme.green)
+                    .foregroundStyle(PetSignalTheme.emerald)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Connected Sighting / Report")
                         .font(.caption2.weight(.bold))
@@ -295,36 +327,37 @@ struct ReportDetailView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Explainable Candidate Matches
+    // MARK: - Explainable Candidate Matches (AI Match Engine)
 
     private func explainableMatchesSection(_ report: AnimalReport) -> some View {
         let candidates = ReportMatcher().candidates(for: report, among: reportStore.reports)
 
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Possible Related Reports")
-                    .font(.headline)
+                Text("AI Match Engine")
+                    .font(.headline.weight(.bold))
+                    .tracking(-0.2)
                 Spacer()
-                Text("Suggestions • Not guaranteed")
-                    .font(.caption2)
+                Text("Neural Telemetry • Suggestions")
+                    .font(.system(size: 10, weight: .bold).monospaced())
                     .foregroundStyle(.secondary)
             }
 
             if candidates.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("No candidate matches found nearby yet")
+                    Text("No candidate sighting matches in this radar zone yet")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
-                    Text("When neighbors publish matching sightings or reports in this area, they will appear here with explainable alignment reasons.")
+                    Text("When neighbors publish sightings aligned by time, proximity, or traits, they will appear here with explainable match scores.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
                 .padding(14)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(PetSignalTheme.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .background(PetSignalTheme.subtleSurface, in: RoundedRectangle(cornerRadius: PetSignalTheme.buttonRadius, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(PetSignalTheme.border.opacity(0.5), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: PetSignalTheme.buttonRadius, style: .continuous)
+                        .strokeBorder(PetSignalTheme.cardBorder, lineWidth: 1)
                 )
             } else {
                 ForEach(candidates) { match in
@@ -333,21 +366,17 @@ struct ReportDetailView: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
-                                Image(systemName: "sparkle.magnifyingglass")
-                                    .foregroundStyle(PetSignalTheme.teal)
+                                AIMatchConfidencePill(score: Int((match.score * 100).rounded()))
                                 Text(match.report.displayName)
                                     .font(.subheadline.weight(.bold))
                                     .foregroundStyle(.primary)
                                 Spacer()
-                                Text("Suggested")
+                                Image(systemName: "chevron.right")
                                     .font(.caption2.weight(.bold))
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(PetSignalTheme.teal.opacity(0.15), in: Capsule())
-                                    .foregroundStyle(PetSignalTheme.teal)
+                                    .foregroundStyle(.tertiary)
                             }
 
-                            Text("Why this is suggested:")
+                            Text("Explainable Alignment Factors:")
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.secondary)
 
@@ -368,10 +397,10 @@ struct ReportDetailView: View {
                             }
                         }
                         .padding(14)
-                        .background(PetSignalTheme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .background(PetSignalTheme.cardSurface, in: RoundedRectangle(cornerRadius: PetSignalTheme.buttonRadius, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .strokeBorder(PetSignalTheme.teal.opacity(0.4), lineWidth: 1.5)
+                            RoundedRectangle(cornerRadius: PetSignalTheme.buttonRadius, style: .continuous)
+                                .strokeBorder(PetSignalTheme.indigo.opacity(0.35), lineWidth: 1.5)
                         )
                     }
                     .buttonStyle(.plain)
@@ -385,8 +414,8 @@ struct ReportDetailView: View {
 
     private func managementSection(_ report: AnimalReport) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Manage your report")
-                .font(.headline)
+            Text("Manage Signal")
+                .font(.headline.weight(.bold))
 
             if report.status == .active {
                 Button {
@@ -420,7 +449,7 @@ struct ReportDetailView: View {
         .petSignalCard()
     }
 
-    // MARK: - Bottom Action Bar
+    // MARK: - Bottom Action Bar (Primary Coral Gradient CTA)
 
     private func bottomActionBar(_ report: AnimalReport) -> some View {
         HStack(spacing: 10) {
@@ -428,13 +457,14 @@ struct ReportDetailView: View {
                 isShowingFollowUp = true
             } label: {
                 Label(
-                    report.kind == .missing ? "I saw this animal" : "Log follow-up sighting",
+                    report.kind == .missing ? "Report Sighting" : "Log Follow-up",
                     systemImage: "eye.fill"
                 )
                 .font(.subheadline.weight(.bold))
                 .frame(maxWidth: .infinity, minHeight: 48)
-                .background(PetSignalTheme.green, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .foregroundStyle(PetSignalTheme.onGreenForeground)
+                .background(PetSignalTheme.coralGradient, in: RoundedRectangle(cornerRadius: PetSignalTheme.buttonRadius, style: .continuous))
+                .foregroundStyle(.white)
+                .shadow(color: PetSignalTheme.coral.opacity(0.35), radius: 8, y: 2)
             }
 
             Button {
@@ -447,17 +477,17 @@ struct ReportDetailView: View {
                 .font(.subheadline.weight(.semibold))
                 .padding(.horizontal, 16)
                 .frame(minHeight: 48)
-                .background(PetSignalTheme.subtleSurface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .background(PetSignalTheme.cardSurface, in: RoundedRectangle(cornerRadius: PetSignalTheme.buttonRadius, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(PetSignalTheme.border.opacity(0.5), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: PetSignalTheme.buttonRadius, style: .continuous)
+                        .strokeBorder(PetSignalTheme.cardBorder, lineWidth: 1)
                 )
                 .foregroundStyle(.primary)
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(.regularMaterial)
+        .glassHUD(cornerRadius: 0)
     }
 
     // MARK: - Helpers
@@ -481,6 +511,6 @@ struct ReportDetailView: View {
     }
 
     private func shareText(for report: AnimalReport) -> String {
-        "\(report.kind.rawValue): \(report.displayName). \(report.summary) Last seen \(report.lastSeenAt.formatted(date: .abbreviated, time: .shortened)). Shared via PetSignal."
+        "\(report.kind.rawValue): \(report.displayName). \(report.summary) Last seen \(report.lastSeenAt.formatted(date: .abbreviated, time: .shortened)). Shared via PetSignal Radar."
     }
 }

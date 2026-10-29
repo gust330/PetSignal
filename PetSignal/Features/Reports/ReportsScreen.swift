@@ -36,8 +36,8 @@ struct ReportsScreen: View {
 
                     if filteredReports.isEmpty {
                         ContentUnavailableView(
-                            searchText.isEmpty ? "No Matching Reports" : "No Results Found",
-                            systemImage: searchText.isEmpty ? "pawprint.circle" : "magnifyingglass",
+                            searchText.isEmpty ? "No Matching Radar Signals" : "No Results Found",
+                            systemImage: searchText.isEmpty ? "dot.radiowaves.left.and.right" : "magnifyingglass",
                             description: Text(emptyDescription)
                         )
                         .padding(.top, 40)
@@ -59,13 +59,13 @@ struct ReportsScreen: View {
                 .padding(.vertical, 12)
             }
             .background(PetSignalTheme.canvas)
-            .navigationTitle("Community Signals")
+            .navigationTitle("Community Radar")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: onCreateReport) {
                         Image(systemName: "plus.circle.fill")
                             .font(.title3)
-                            .foregroundStyle(PetSignalTheme.green)
+                            .foregroundStyle(PetSignalTheme.coral)
                     }
                     .accessibilityLabel("Create New Report")
                 }
@@ -73,7 +73,7 @@ struct ReportsScreen: View {
             .navigationDestination(for: UUID.self) { reportID in
                 ReportDetailView(reportID: reportID)
             }
-            .searchable(text: $searchText, prompt: "Search breed, collar, trait, or area")
+            .searchable(text: $searchText, prompt: "Search signal, breed, collar, or area")
             .safeAreaInset(edge: .top, spacing: 0) {
                 filterBar
             }
@@ -84,10 +84,17 @@ struct ReportsScreen: View {
         HStack(spacing: 14) {
             SignalMark(size: 48)
             VStack(alignment: .leading, spacing: 3) {
-                Text("Community Signals")
-                    .font(.headline.weight(.bold))
-                Text("\(activeReports.count) active \(activeReports.count == 1 ? "signal" : "signals") • Lisbon Metro (~300m mesh)")
-                    .font(.caption)
+                HStack(spacing: 6) {
+                    Text("COMMUNITY RADAR")
+                        .font(.headline.weight(.black))
+                        .tracking(-0.3)
+                    Circle()
+                        .fill(PetSignalTheme.coral)
+                        .frame(width: 6, height: 6)
+                }
+
+                Text("\(activeReports.count) ACTIVE SIGNALS • ~300m MESH")
+                    .font(.system(size: 11, weight: .bold).monospaced())
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
@@ -96,8 +103,9 @@ struct ReportsScreen: View {
                     .font(.subheadline.weight(.bold))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
-                    .background(PetSignalTheme.green, in: Capsule())
-                    .foregroundStyle(PetSignalTheme.onGreenForeground)
+                    .background(PetSignalTheme.coralGradient, in: Capsule())
+                    .foregroundStyle(.white)
+                    .shadow(color: PetSignalTheme.coral.opacity(0.35), radius: 8, y: 2)
             }
             .frame(minHeight: 44)
             .accessibilityHint("Opens the report creation form")
@@ -121,16 +129,18 @@ struct ReportsScreen: View {
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .background(
-                                filter == option ? AnyShapeStyle(PetSignalTheme.green) : AnyShapeStyle(PetSignalTheme.surface),
+                                filter == option
+                                    ? AnyShapeStyle(PetSignalTheme.coral)
+                                    : AnyShapeStyle(PetSignalTheme.cardSurface),
                                 in: Capsule()
                             )
                             .overlay(
                                 Capsule().strokeBorder(
-                                    filter == option ? PetSignalTheme.green : PetSignalTheme.border.opacity(0.5),
+                                    filter == option ? PetSignalTheme.coral : PetSignalTheme.cardBorder,
                                     lineWidth: 1
                                 )
                             )
-                            .foregroundStyle(filter == option ? PetSignalTheme.onGreenForeground : .primary)
+                            .foregroundStyle(filter == option ? Color.white : Color.primary)
                     }
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(filter == option ? .isSelected : [])
@@ -140,7 +150,7 @@ struct ReportsScreen: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         }
-        .background(.regularMaterial)
+        .glassHUD(cornerRadius: 0)
         .overlay(alignment: .bottom) {
             Divider()
         }
@@ -171,7 +181,7 @@ struct ReportsScreen: View {
 
 private enum ReportFilter: String, CaseIterable, Identifiable {
     case active = "All Active"
-    case missing = "Missing"
+    case missing = "Lost"
     case sightings = "Sightings"
     case saved = "Saved ★"
     case resolved = "Reunited"

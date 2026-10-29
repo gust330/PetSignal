@@ -63,7 +63,7 @@ Losing a pet is distressing and time-critical. Traditional social media posts an
 |:---:|:---:|:---:|:---:|
 | ![Map Screen](previews/map_screen.png) | ![Report Detail](previews/report_detail.png) | ![New Report Flow](previews/new_report.png) | ![Tablet Layout](previews/figma_tablet.png) |
 
-> 🎨 **Figma Design System & Mockups:** Available in Figma at [`https://www.figma.com/design/l8CFKPboMZSzNmsBmDSUBK`](https://www.figma.com/design/l8CFKPboMZSzNmsBmDSUBK).  
+> 🎨 **Official UI/UX Design System:** Implemented natively in `DesignSystem.swift` with Signal Coral (`#FF5A36`), Sighting Amber (`#F59E0B`), Reunited Emerald (`#10B981`), Safe Haven Indigo (`#6366F1`), floating glassmorphic HUDs, generous modern curves (24px cards, 28px sheets, 16px buttons), and monospace telemetry.  
 > 🌐 **Interactive Preview:** Test all mobile screens and responsive tablet mode in [`petsignal-preview.html`](petsignal-preview.html).
 
 ---

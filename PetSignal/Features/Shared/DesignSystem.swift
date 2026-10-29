@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-// MARK: - Semantic Theme & Tokens
+// MARK: - Semantic Theme & Design Tokens
 
 enum PetSignalTheme {
     /// Dynamic Light/Dark semantic color helper
@@ -11,40 +11,107 @@ enum PetSignalTheme {
         })
     }
 
-    // Core Brand & Semantic Status Palette (WCAG AA+ Outdoor Sunlight Tested)
-    static let green = dynamicColor(
-        light: UIColor(red: 0.05, green: 0.24, blue: 0.18, alpha: 1.0), // #0D3328 Deep Pine Evergreen
-        dark:  UIColor(red: 0.22, green: 0.66, blue: 0.50, alpha: 1.0)  // #38A882 Luminous Sage
+    // MARK: - 1. Core Semantic Palette
+    /// Primary Brand (Signal Coral): #FF5A36 (gradient to #FF2E54)
+    /// Used for Lost Pet alerts, primary CTAs, and active radar pulses.
+    static let coral = dynamicColor(
+        light: UIColor(red: 1.0, green: 0.353, blue: 0.212, alpha: 1.0), // #FF5A36
+        dark:  UIColor(red: 1.0, green: 0.392, blue: 0.255, alpha: 1.0)  // #FF6441
     )
+    static let coralDark = Color(red: 1.0, green: 0.180, blue: 0.329) // #FF2E54
+    static let coralGradient = LinearGradient(
+        colors: [coral, coralDark],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+
+    /// Sighting / Amber Alert: #F59E0B (amber-500)
+    /// Used for unverified community sightings and AI potential matches.
     static let amber = dynamicColor(
-        light: UIColor(red: 0.76, green: 0.25, blue: 0.05, alpha: 1.0), // #C2410C High-Contrast Sunlight Amber
-        dark:  UIColor(red: 0.98, green: 0.57, blue: 0.24, alpha: 1.0)  // #FB923C Warm Gold
+        light: UIColor(red: 0.961, green: 0.620, blue: 0.043, alpha: 1.0), // #F59E0B
+        dark:  UIColor(red: 0.984, green: 0.686, blue: 0.220, alpha: 1.0)  // #FBAF38
     )
-    static let teal = dynamicColor(
-        light: UIColor(red: 0.05, green: 0.45, blue: 0.56, alpha: 1.0), // #0E7490 Deep Coastal Teal
-        dark:  UIColor(red: 0.22, green: 0.74, blue: 0.97, alpha: 1.0)  // #38BDF8 Bright Sky Teal
+
+    /// Safe / Reunited Emerald: #10B981 (emerald-500)
+    /// Used for Found pets, verified microchips, and safe resolution states.
+    static let emerald = dynamicColor(
+        light: UIColor(red: 0.063, green: 0.725, blue: 0.506, alpha: 1.0), // #10B981
+        dark:  UIColor(red: 0.204, green: 0.827, blue: 0.604, alpha: 1.0)  // #34D399
     )
+
+    /// Vet / Safe Haven Indigo: #6366F1 (indigo-500)
+    /// Used for 24/7 Vet clinics, shelters, and microchip scanning stations.
+    static let indigo = dynamicColor(
+        light: UIColor(red: 0.388, green: 0.400, blue: 0.945, alpha: 1.0), // #6366F1
+        dark:  UIColor(red: 0.506, green: 0.549, blue: 0.973, alpha: 1.0)  // #818CF8
+    )
+
+    // MARK: - 2. Surface Architecture
+    /// Canvas Base: Light #F1F5F9, Dark #090D16
     static let canvas = dynamicColor(
-        light: UIColor(red: 0.965, green: 0.960, blue: 0.945, alpha: 1.0), // #F6F5F1 Warm Alabaster
-        dark:  UIColor(red: 0.045, green: 0.067, blue: 0.055, alpha: 1.0)  // #0C110E Deep Forest Night
+        light: UIColor(red: 0.945, green: 0.961, blue: 0.976, alpha: 1.0), // #F1F5F9
+        dark:  UIColor(red: 0.035, green: 0.051, blue: 0.086, alpha: 1.0)  // #090D16
     )
-    /// High-contrast text color for elements rendered on a `PetSignalTheme.green` background
-    /// (passes WCAG AAA with >7:1 contrast in both light and dark modes)
-    static let onGreenForeground = dynamicColor(
+
+    /// Elevated Glass HUD: Light rgba(255, 255, 255, 0.85), Dark rgba(15, 23, 42, 0.78)
+    static let elevatedGlassHUD = dynamicColor(
+        light: UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.85),
+        dark:  UIColor(red: 0.059, green: 0.090, blue: 0.165, alpha: 0.78) // #0F172A/78
+    )
+
+    /// Card Surface: Light #FFFFFF, Dark #131B2E
+    static let cardSurface = dynamicColor(
         light: UIColor.white,
-        dark:  UIColor(red: 0.05, green: 0.07, blue: 0.07, alpha: 1.0)
+        dark:  UIColor(red: 0.075, green: 0.106, blue: 0.180, alpha: 1.0)  // #131B2E
     )
-    static let surface = Color(uiColor: .secondarySystemGroupedBackground)
-    static let subtleSurface = Color(uiColor: .tertiarySystemGroupedBackground)
-    static let border = Color(uiColor: .separator)
+
+    /// Card Border: Light rgba(226, 232, 240, 0.80), Dark rgba(30, 41, 59, 0.80)
+    static let cardBorder = dynamicColor(
+        light: UIColor(red: 0.886, green: 0.910, blue: 0.941, alpha: 0.80), // #E2E8F0/80
+        dark:  UIColor(red: 0.118, green: 0.161, blue: 0.231, alpha: 0.80)  // #1E293B/80
+    )
+
+    /// HUD Border: Light border-slate-200/80, Dark border-white/10
+    static let hudBorder = dynamicColor(
+        light: UIColor(red: 0.886, green: 0.910, blue: 0.941, alpha: 0.80),
+        dark:  UIColor(white: 1.0, alpha: 0.10)
+    )
+
+    /// Subtle Surface (e.g. secondary containers, photo placeholder)
+    static let subtleSurface = dynamicColor(
+        light: UIColor(red: 0.973, green: 0.980, blue: 0.988, alpha: 1.0), // #F8FAFC
+        dark:  UIColor(red: 0.102, green: 0.137, blue: 0.227, alpha: 1.0)  // #1A233A
+    )
+
+    // MARK: - Backward Compatibility Aliases
+    static let green = emerald
+    static let teal = indigo
+    static let surface = cardSurface
+    static let border = cardBorder
+    static let onGreenForeground = Color.white
+    static let onCoralForeground = Color.white
+
+    // MARK: - 3. Corner Radii Tokens
+    /// Cards: rounded-3xl (24px)
+    static let cardRadius: CGFloat = 24.0
+    /// Modals/Sheets: rounded-[28px] (28px)
+    static let modalRadius: CGFloat = 28.0
+    /// Buttons/Inputs: rounded-2xl (16px)
+    static let buttonRadius: CGFloat = 16.0
+    /// Status Pills: rounded-full (999px)
+    static let pillRadius: CGFloat = 999.0
 }
 
 extension Color {
-    static let petSignalGreen = PetSignalTheme.green
-    static let petSignalDeepGreen = Color(red: 0.05, green: 0.20, blue: 0.17)
-    static let petSignalCream = PetSignalTheme.canvas
+    static let petSignalCoral = PetSignalTheme.coral
     static let petSignalAmber = PetSignalTheme.amber
-    static let petSignalTeal = PetSignalTheme.teal
+    static let petSignalEmerald = PetSignalTheme.emerald
+    static let petSignalIndigo = PetSignalTheme.indigo
+    static let petSignalGreen = PetSignalTheme.emerald
+    static let petSignalTeal = PetSignalTheme.indigo
+    static let petSignalCanvas = PetSignalTheme.canvas
+    static let petSignalCream = PetSignalTheme.canvas
+    static let petSignalDeepGreen = Color(red: 0.059, green: 0.090, blue: 0.165)
 }
 
 // MARK: - Brand Mark
@@ -54,52 +121,155 @@ struct SignalMark: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: size * 0.16, style: .continuous)
-                .fill(Color.petSignalDeepGreen)
+            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.059, green: 0.090, blue: 0.165),
+                            Color(red: 0.075, green: 0.106, blue: 0.180)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                        .strokeBorder(PetSignalTheme.coral.opacity(0.35), lineWidth: 1)
+                )
+
             Image(systemName: "pawprint.fill")
                 .font(.system(size: size * 0.38, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(PetSignalTheme.coralGradient)
+
             Image(systemName: "dot.radiowaves.left.and.right")
                 .font(.system(size: size * 0.76, weight: .light))
-                .foregroundStyle(Color.petSignalAmber)
+                .foregroundStyle(PetSignalTheme.coral.opacity(0.55))
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
     }
 }
 
-// MARK: - Status & Type Badges
+// MARK: - 1. SignalStatusBadge
+/// Pill badge with live pulsing dot, uppercase tracking-wider text, semantic background tint (bg-opacity-15).
 
-struct StatusPillBadge: View {
-    let kind: ReportKind
-    let status: ReportStatus
+struct SignalStatusBadge: View {
+    enum BadgeSize {
+        case small
+        case regular
 
-    private var isResolved: Bool {
-        status != .active
+        var font: Font {
+            switch self {
+            case .small: return .system(size: 10, weight: .bold)
+            case .regular: return .system(size: 11, weight: .bold)
+            }
+        }
+
+        var paddingH: CGFloat {
+            switch self {
+            case .small: return 8
+            case .regular: return 10
+            }
+        }
+
+        var paddingV: CGFloat {
+            switch self {
+            case .small: return 3
+            case .regular: return 5
+            }
+        }
+
+        var dotSize: CGFloat {
+            switch self {
+            case .small: return 5.5
+            case .regular: return 6.5
+            }
+        }
     }
 
-    private var tintColor: Color {
-        isResolved ? PetSignalTheme.green : kind.tint
+    let title: String
+    let color: Color
+    var size: BadgeSize = .regular
+
+    @State private var isPulsing = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    init(title: String, color: Color, size: BadgeSize = .regular) {
+        self.title = title
+        self.color = color
+        self.size = size
     }
 
-    private var labelText: String {
-        isResolved ? status.displayName : kind.rawValue
-    }
-
-    private var iconName: String {
-        isResolved ? "checkmark.seal.fill" : kind.systemImage
+    init(kind: ReportKind, status: ReportStatus, size: BadgeSize = .regular) {
+        let isResolved = status != .active
+        if isResolved {
+            self.title = status.displayName.uppercased()
+            self.color = PetSignalTheme.emerald
+        } else {
+            switch kind {
+            case .missing:
+                self.title = "LOST SIGNAL"
+                self.color = PetSignalTheme.coral
+            case .sighting:
+                self.title = "AI SIGHTING"
+                self.color = PetSignalTheme.amber
+            }
+        }
+        self.size = size
     }
 
     var body: some View {
-        Label(labelText, systemImage: iconName)
-            .font(.caption.weight(.bold))
-            .tracking(0.3)
-            .textCase(.uppercase)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(Capsule().fill(tintColor.opacity(0.16)))
-            .overlay(Capsule().strokeBorder(tintColor.opacity(0.4), lineWidth: 1))
-            .foregroundStyle(tintColor)
+        HStack(spacing: 5) {
+            ZStack {
+                if !reduceMotion {
+                    Circle()
+                        .fill(color)
+                        .scaleEffect(isPulsing ? 2.2 : 1.0)
+                        .opacity(isPulsing ? 0.0 : 0.8)
+                        .animation(
+                            .easeOut(duration: 1.5).repeatForever(autoreverses: false),
+                            value: isPulsing
+                        )
+                }
+                Circle()
+                    .fill(color)
+            }
+            .frame(width: size.dotSize, height: size.dotSize)
+
+            Text(title)
+                .font(size.font)
+                .tracking(0.8)
+                .textCase(.uppercase)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, size.paddingH)
+        .padding(.vertical, size.paddingV)
+        .background(color.opacity(0.15))
+        .overlay(
+            Capsule().strokeBorder(color.opacity(0.35), lineWidth: 1)
+        )
+        .clipShape(Capsule())
+        .foregroundStyle(color)
+        .onAppear {
+            if !reduceMotion {
+                isPulsing = true
+            }
+        }
+    }
+}
+
+/// Backwards compatibility alias
+typealias StatusPillBadge = SignalStatusBadge
+
+struct StatusPill: View {
+    let status: ReportStatus
+
+    var body: some View {
+        SignalStatusBadge(
+            title: status.displayName.uppercased(),
+            color: status.tint,
+            size: .small
+        )
     }
 }
 
@@ -107,29 +277,166 @@ struct TypePill: View {
     let kind: ReportKind
 
     var body: some View {
-        Label(kind.rawValue, systemImage: kind.systemImage)
-            .font(.caption.weight(.bold))
-            .tracking(0.3)
-            .textCase(.uppercase)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(Capsule().fill(kind.tint.opacity(0.16)))
-            .overlay(Capsule().strokeBorder(kind.tint.opacity(0.4), lineWidth: 1))
-            .foregroundStyle(kind.tint)
+        SignalStatusBadge(
+            title: kind.rawValue.uppercased(),
+            color: kind.tint,
+            size: .small
+        )
     }
 }
 
-struct StatusPill: View {
-    let status: ReportStatus
+// MARK: - 2. AIMatchConfidencePill
+/// Gradient-bordered badge with Sparkles icon showing neural visual match score.
+
+struct AIMatchConfidencePill: View {
+    let score: Int
 
     var body: some View {
-        Label(status.displayName, systemImage: status.systemImage)
-            .font(.caption.weight(.semibold))
-            .padding(.horizontal, 9)
-            .padding(.vertical, 5)
-            .background(Capsule().fill(status.tint.opacity(0.16)))
-            .overlay(Capsule().strokeBorder(status.tint.opacity(0.4), lineWidth: 1))
-            .foregroundStyle(status.tint)
+        HStack(spacing: 4.5) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(PetSignalTheme.coral)
+
+            Text("\(score)% AI MATCH")
+                .font(.system(size: 11, weight: .bold).monospaced())
+                .tracking(0.3)
+                .foregroundStyle(PetSignalTheme.indigo)
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 4.5)
+        .background(
+            LinearGradient(
+                colors: [
+                    PetSignalTheme.indigo.opacity(0.12),
+                    PetSignalTheme.coral.opacity(0.10)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        )
+        .overlay(
+            Capsule()
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            PetSignalTheme.indigo.opacity(0.40),
+                            PetSignalTheme.coral.opacity(0.35)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .clipShape(Capsule())
+    }
+}
+
+// MARK: - 3. PetPinMarker
+/// Custom avatar marker with semantic border ring, directional pointer triangle, and animated outer radar wave.
+
+struct PetPinMarker: View {
+    let report: AnimalReport
+    var isSelected: Bool = false
+    @State private var isPulsing = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var pinColor: Color {
+        if report.status != .active {
+            return PetSignalTheme.emerald
+        }
+        return report.kind == .missing ? PetSignalTheme.coral : PetSignalTheme.amber
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ZStack {
+                // Animated outer radar wave
+                if (report.kind == .missing || isSelected) && !reduceMotion {
+                    Circle()
+                        .stroke(pinColor.opacity(0.45), lineWidth: 2)
+                        .scaleEffect(isPulsing ? 1.85 : 1.0)
+                        .opacity(isPulsing ? 0.0 : 0.8)
+                        .animation(
+                            .easeOut(duration: 1.8).repeatForever(autoreverses: false),
+                            value: isPulsing
+                        )
+                        .frame(width: 44, height: 44)
+                }
+
+                // Avatar bubble with semantic ring
+                Circle()
+                    .fill(PetSignalTheme.cardSurface)
+                    .frame(width: 42, height: 42)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(pinColor, lineWidth: isSelected ? 3.5 : 2.5)
+                    )
+                    .shadow(
+                        color: pinColor.opacity(isSelected ? 0.45 : 0.25),
+                        radius: isSelected ? 8 : 4,
+                        y: 2
+                    )
+
+                // Avatar Icon / Silhouette
+                Image(systemName: report.species.systemImage)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(pinColor)
+            }
+            .frame(width: 46, height: 46)
+
+            // Directional pointer triangle
+            PointerTriangle()
+                .fill(pinColor)
+                .frame(width: 10, height: 6)
+                .offset(y: -1)
+        }
+        .onAppear {
+            if !reduceMotion {
+                isPulsing = true
+            }
+        }
+    }
+}
+
+struct PointerTriangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - 4. GlassNavigationHUD Modifier
+/// Floating glassmorphic HUD panel with backdrop-blur-xl, border-white/10, and high contrast.
+
+struct GlassHUDModifier: ViewModifier {
+    var cornerRadius: CGFloat = 20
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(PetSignalTheme.elevatedGlassHUD)
+                    .background(
+                        .ultraThinMaterial,
+                        in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(PetSignalTheme.hudBorder, lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
+    }
+}
+
+extension View {
+    func glassHUD(cornerRadius: CGFloat = 20) -> some View {
+        modifier(GlassHUDModifier(cornerRadius: cornerRadius))
     }
 }
 
@@ -140,7 +447,7 @@ struct SafetyBanner: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: "hand.raised.fill")
+            Image(systemName: "shield.lefthalf.filled")
                 .font(.title3)
                 .foregroundStyle(PetSignalTheme.amber)
                 .padding(.top, 2)
@@ -160,9 +467,9 @@ struct SafetyBanner: View {
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(PetSignalTheme.amber.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .strokeBorder(PetSignalTheme.amber.opacity(0.35), lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
@@ -179,6 +486,7 @@ struct AttributeCell: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
                 .font(.caption2.weight(.bold))
+                .tracking(0.3)
                 .foregroundStyle(.secondary)
             Text(value)
                 .font(.subheadline.weight(.semibold))
@@ -186,10 +494,10 @@ struct AttributeCell: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(PetSignalTheme.surface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(PetSignalTheme.cardSurface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .strokeBorder(PetSignalTheme.border.opacity(0.4), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(PetSignalTheme.cardBorder, lineWidth: 1)
         )
     }
 }
@@ -201,11 +509,11 @@ struct MatchReasonChip: View {
     var body: some View {
         Label(text, systemImage: icon)
             .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 9)
             .padding(.vertical, 5)
-            .background(PetSignalTheme.teal.opacity(0.14), in: Capsule())
-            .overlay(Capsule().strokeBorder(PetSignalTheme.teal.opacity(0.35), lineWidth: 1))
-            .foregroundStyle(PetSignalTheme.teal)
+            .background(PetSignalTheme.indigo.opacity(0.12), in: Capsule())
+            .overlay(Capsule().strokeBorder(PetSignalTheme.indigo.opacity(0.35), lineWidth: 1))
+            .foregroundStyle(PetSignalTheme.indigo)
     }
 }
 
@@ -214,14 +522,14 @@ struct CandidateMatchBanner: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: "sparkle.magnifyingglass")
+            Image(systemName: "sparkles")
                 .font(.subheadline.weight(.bold))
-                .foregroundStyle(PetSignalTheme.teal)
+                .foregroundStyle(PetSignalTheme.coral)
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(matchCount) Possible Sighting Match\(matchCount == 1 ? "" : "es")")
+                Text("\(matchCount) Possible AI Sighting Match\(matchCount == 1 ? "" : "es")")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.primary)
-                Text("Within ~300m privacy grid cell • Explainable alignment")
+                Text("Within ~300m privacy mesh • Neural trait alignment")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -232,10 +540,20 @@ struct CandidateMatchBanner: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
-        .background(PetSignalTheme.teal.opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .background(
+            LinearGradient(
+                colors: [
+                    PetSignalTheme.indigo.opacity(0.12),
+                    PetSignalTheme.coral.opacity(0.10)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            ),
+            in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+        )
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .strokeBorder(PetSignalTheme.teal.opacity(0.35), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(PetSignalTheme.indigo.opacity(0.35), lineWidth: 1)
         )
     }
 }
@@ -245,8 +563,8 @@ struct CandidateMatchBanner: View {
 extension ReportKind {
     var tint: Color {
         switch self {
-        case .missing: return PetSignalTheme.amber
-        case .sighting: return PetSignalTheme.teal
+        case .missing: return PetSignalTheme.coral
+        case .sighting: return PetSignalTheme.amber
         }
     }
 }
@@ -263,8 +581,8 @@ extension ReportStatus {
 
     var tint: Color {
         switch self {
-        case .active: return PetSignalTheme.green
-        case .reunited, .safe: return PetSignalTheme.green
+        case .active: return PetSignalTheme.coral
+        case .reunited, .safe: return PetSignalTheme.emerald
         case .closed: return .secondary
         }
     }
@@ -279,16 +597,30 @@ extension ReportStatus {
     }
 }
 
-// MARK: - View Modifiers
+// MARK: - 5. SignalCard View Modifier
+/// Generous, friendly, modern curves — Cards: rounded-3xl (24px) with subtle shadow & glow on active selection.
 
 extension View {
-    func petSignalCard() -> some View {
+    func petSignalCard(isSelected: Bool = false) -> some View {
         padding(14)
-            .background(PetSignalTheme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(
+                RoundedRectangle(cornerRadius: PetSignalTheme.cardRadius, style: .continuous)
+                    .fill(PetSignalTheme.cardSurface)
+            )
             .overlay {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(PetSignalTheme.border.opacity(0.55), lineWidth: 1)
+                RoundedRectangle(cornerRadius: PetSignalTheme.cardRadius, style: .continuous)
+                    .strokeBorder(
+                        isSelected ? PetSignalTheme.coral : PetSignalTheme.cardBorder,
+                        lineWidth: isSelected ? 2 : 1
+                    )
             }
-            .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 2)
+            .shadow(
+                color: isSelected
+                    ? PetSignalTheme.coral.opacity(0.28)
+                    : Color.black.opacity(0.06),
+                radius: isSelected ? 16 : 8,
+                x: 0,
+                y: isSelected ? 4 : 2
+            )
     }
 }

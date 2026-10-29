@@ -67,7 +67,7 @@ struct NewReportView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "link.circle.fill")
                                 .font(.title2)
-                                .foregroundStyle(PetSignalTheme.green)
+                                .foregroundStyle(PetSignalTheme.coral)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Following up on \(followingUpOn.displayName)")
                                     .font(.subheadline.weight(.bold))
@@ -89,8 +89,8 @@ struct NewReportView: View {
             }
             .scrollContentBackground(.hidden)
             .background(PetSignalTheme.canvas)
-            .tint(PetSignalTheme.green)
-            .navigationTitle(draft.kind == .missing ? "Missing Pet Report" : "Animal Sighting")
+            .tint(PetSignalTheme.coral)
+            .navigationTitle(draft.kind == .missing ? "Broadcast Lost Signal" : "Report Sighting")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -103,10 +103,11 @@ struct NewReportView: View {
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Post") {
+                    Button("Broadcast") {
                         submitReport()
                     }
                     .fontWeight(.bold)
+                    .foregroundStyle(canSubmit ? PetSignalTheme.coral : .secondary)
                     .disabled(!canSubmit)
                 }
             }

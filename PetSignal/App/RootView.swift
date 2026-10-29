@@ -22,14 +22,14 @@ struct RootView: View {
                 .tabItem { Label("Community Feed", systemImage: "rectangle.grid.1x2.fill") }
                 .tag(AppTab.reports)
         }
-        .tint(PetSignalTheme.green)
+        .tint(PetSignalTheme.coral)
         .sheet(isPresented: $isPresentingNewReport) {
             NewReportView { _ in
                 toastTask?.cancel()
-                savedMessage = "Report saved on this device"
+                savedMessage = "Radar signal broadcasted on this device"
                 UIAccessibility.post(
                     notification: .announcement,
-                    argument: "Report saved on this device"
+                    argument: "Radar signal broadcasted on this device"
                 )
                 selectedTab = .reports
                 toastTask = Task {
@@ -46,7 +46,7 @@ struct RootView: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 16)
                     .frame(minHeight: 48)
-                    .background(PetSignalTheme.green, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .background(PetSignalTheme.emerald, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .padding(.top, 8)
                     .accessibilityAddTraits(.isStaticText)
                     .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))

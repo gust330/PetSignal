@@ -21,6 +21,11 @@ struct AnimalReport: Identifiable, Hashable {
         }
         return petName
     }
+
+    var signalID: String {
+        let clean = id.uuidString.replacingOccurrences(of: "-", with: "")
+        return "#SIG-\(clean.prefix(3).uppercased())"
+    }
 }
 
 enum ReportKind: String, CaseIterable, Identifiable, Hashable {
